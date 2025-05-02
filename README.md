@@ -1,2 +1,2 @@
 # PDF Smith
-A service to create a PDF document from a dynamic template.
+A REST API that allows to create PDF documents from a dynamic template
