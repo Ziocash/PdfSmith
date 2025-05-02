@@ -1,12 +1,36 @@
+using System.Dynamic;
+using System.Globalization;
+using System.Net.Mime;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http.Timeouts;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using PdfSmith.BusinessLayer.Extensions;
+using PdfSmith.BusinessLayer.Generators;
+using PdfSmith.BusinessLayer.Templating;
+using PdfSmith.Shared.Models;
 using SimpleAuthentication;
 using TinyHelpers.AspNetCore.Extensions;
+using TinyHelpers.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSimpleAuthentication(builder.Configuration);
+
+builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
+//builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
+
+builder.Services.AddSingleton<IPdfGenerator, ChromiumPdfGenerator>();
+
+builder.Services.AddRequestLocalization(options =>
+{
+    var supportedCultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+});
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -40,6 +64,7 @@ builder.Services.AddRequestTimeouts();
 builder.Services.AddOpenApi(options =>
 {
     options.AddSimpleAuthentication(builder.Configuration);
+    options.AddAcceptLanguageHeader();
 });
 
 builder.Services.AddDefaultProblemDetails();
@@ -63,14 +88,24 @@ app.UseSwaggerUI(options =>
 app.UseRouting();
 //app.UseCors();
 
+app.UseRequestLocalization();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseRateLimiter();
+app.UseRequestTimeouts();
 
-app.MapGet("/api/test", () =>
+app.MapPost("/api/pdf", async (PdfGenerationRequest request, IServiceProvider serviceProvider, IPdfGenerator pdfGenerator, HttpContext httpContext) =>
 {
-    return TypedResults.Ok();
+    var model = request.Model.ToExpandoObject();
+
+    var templateEngine = serviceProvider.GetRequiredKeyedService<ITemplateEngine>(request.TemplateEngine);
+    var result = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, httpContext.RequestAborted);
+
+    var pdfStream = await pdfGenerator.CreateAsync(result, httpContext.RequestAborted);
+
+    return TypedResults.Stream(pdfStream, contentType: MediaTypeNames.Application.Pdf, fileDownloadName: $"{Guid.CreateVersion7():N}.pdf");
 })
 .RequireAuthorization()
 .RequireRateLimiting("PdfGeneration")
@@ -80,5 +115,7 @@ app.MapGet("/api/test", () =>
     TimeoutStatusCode = StatusCodes.Status408RequestTimeout
 });
 
-app.Run();
+// On Windows, it is installed in %USERPROFILE%\AppData\Local\ms-playwright
+Microsoft.Playwright.Program.Main(["install", "chromium"]);
 
+app.Run();
