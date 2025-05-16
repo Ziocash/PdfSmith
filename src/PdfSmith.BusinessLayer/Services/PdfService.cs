@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Globalization;
 using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OperationResults;
 using PdfSmith.BusinessLayer.Exceptions;
@@ -22,7 +16,7 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
 {
     public async Task<Result<StreamFileContent>> GeneratePdfAsync(PdfGenerationRequest request, CancellationToken cancellationToken)
     {
-        var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine);
+        var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine.ToLowerInvariant().Trim());
 
         if (templateEngine is null)
         {
@@ -35,7 +29,7 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
             var model = request.Model.ToExpandoObject();
             content = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, cancellationToken);
         }
-        catch(TemplateEngineException ex)
+        catch (TemplateEngineException ex)
         {
             return Result.Fail(FailureReasons.ClientError, "Unable to render the template", ex.Message);
         }

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using PdfSmith.BusinessLayer.Exceptions;
 using RazorLight;
+using RazorLight.Compilation;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
@@ -23,8 +20,15 @@ public class RazorTemplateEngine : ITemplateEngine
 
     public async Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
-        var result = await engine.CompileRenderStringAsync(template, template, model);
-        return result;
+        try
+        {
+            var result = await engine.CompileRenderStringAsync(template, template, model);
+            return result;
+        }
+        catch (TemplateCompilationException ex)
+        {
+            throw new TemplateEngineException(ex.Message);
+        }
     }
 }
 
