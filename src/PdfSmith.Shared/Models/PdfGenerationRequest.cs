@@ -2,4 +2,4 @@
 
 namespace PdfSmith.Shared.Models;
 
-public record class PdfGenerationRequest(string Template, JsonDocument Model, string TemplateEngine);
+public record class PdfGenerationRequest(string Template, JsonDocument Model, PdfOptions? Options = null, string TemplateEngine = "scriban", string? FileName = null);
