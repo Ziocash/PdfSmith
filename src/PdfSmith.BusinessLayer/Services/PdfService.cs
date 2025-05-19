@@ -16,22 +16,29 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
 {
     public async Task<Result<StreamFileContent>> GeneratePdfAsync(PdfGenerationRequest request, CancellationToken cancellationToken)
     {
-        var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine.ToLowerInvariant().Trim());
-
-        if (templateEngine is null)
-        {
-            return Result.Fail(FailureReasons.ClientError, "Unable to render the template", $"The template engine {request.TemplateEngine} has not been registered");
-        }
-
         string? content;
-        try
+        if (request.Model is not null)
         {
-            var model = request.Model.ToExpandoObject();
-            content = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, cancellationToken);
+            var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine!.ToLowerInvariant().Trim());
+
+            if (templateEngine is null)
+            {
+                return Result.Fail(FailureReasons.ClientError, "Unable to render the template", $"The template engine '{request.TemplateEngine}' has not been registered");
+            }
+
+            try
+            {
+                var model = request.Model.ToExpandoObject();
+                content = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, cancellationToken);
+            }
+            catch (TemplateEngineException ex)
+            {
+                return Result.Fail(FailureReasons.ClientError, "Unable to render the template", ex.Message);
+            }
         }
-        catch (TemplateEngineException ex)
+        else
         {
-            return Result.Fail(FailureReasons.ClientError, "Unable to render the template", ex.Message);
+            content = request.Template;
         }
 
         var output = await pdfGenerator.CreateAsync(content, request.Options, cancellationToken);

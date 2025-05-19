@@ -26,15 +26,15 @@ public class ChromiumPdfGenerator : IPdfGenerator
 
         var output = await page.PdfAsync(new()
         {
-            Format=pdfOptions.PageSize.GetValueOrDefault("A4"),
+            Format = pdfOptions.PageSize.GetValueOrDefault("A4"),
             Landscape = pdfOptions.Orientation == PdfOrientation.Landscape,
-            PrintBackground = true,           
-            Margin = pdfOptions.Margin is not null? new()
+            PrintBackground = true,
+            Margin = pdfOptions.Margin is not null ? new()
             {
-                Top = $"{pdfOptions.Margin.Top}px",
-                Bottom = $"{pdfOptions.Margin.Bottom}px",
-                Left = $"{pdfOptions.Margin.Left}px",
-                Right = $"{pdfOptions.Margin.Right}px",
+                Top = pdfOptions.Margin.Top.GetValueOrDefault("2.5cm").Replace(",", "."),
+                Bottom = pdfOptions.Margin.Bottom.GetValueOrDefault("2cm").Replace(",", "."),
+                Left = pdfOptions.Margin.Left.GetValueOrDefault("2cm").Replace(",", "."),
+                Right = pdfOptions.Margin.Right.GetValueOrDefault("2cm").Replace(",", "."),
             } : null
         });
 
