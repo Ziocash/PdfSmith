@@ -17,6 +17,7 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
     public async Task<Result<StreamFileContent>> GeneratePdfAsync(PdfGenerationRequest request, CancellationToken cancellationToken)
     {
         string? content;
+
         if (request.Model is not null)
         {
             var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine!.ToLowerInvariant().Trim());

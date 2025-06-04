@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 namespace PdfSmith.BusinessLayer.Extensions;
@@ -17,7 +18,7 @@ public static class JsonDocumentExtensions
             var expando = new ExpandoObject() as IDictionary<string, object>;
             foreach (var property in element.EnumerateObject())
             {
-                expando[property.Name] = ConvertValue(property.Value)!;
+                expando[ToPascalCase(property.Name)] = ConvertValue(property.Value)!;
             }
 
             return (ExpandoObject)expando!;
@@ -47,7 +48,7 @@ public static class JsonDocumentExtensions
         static object? ParseStringValue(JsonElement element)
         {
             var value = element.GetString();
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return value;
             }
@@ -69,6 +70,38 @@ public static class JsonDocumentExtensions
 
             return value;
         }
+    }
+
+    private static string ToPascalCase(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        var sb = new StringBuilder();
+        var capitalizeNext = true;
+
+        foreach (var c in input)
+        {
+            if (c is '_' or '-' or '.')
+            {
+                capitalizeNext = true;
+                continue;
+            }
+
+            if (capitalizeNext)
+            {
+                sb.Append(char.ToUpper(c));
+                capitalizeNext = false;
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+
+        return sb.ToString();
     }
 }
 
