@@ -11,7 +11,7 @@ public static class StringExtensions
             return input;
         }
 
-        var sb = new StringBuilder();
+        var sb = new StringBuilder(input.Length);
         var capitalizeNext = true;
 
         foreach (var c in input)
@@ -24,7 +24,7 @@ public static class StringExtensions
 
             if (capitalizeNext)
             {
-                sb.Append(char.ToUpper(c));
+                sb.Append(char.ToUpperInvariant(c));
                 capitalizeNext = false;
             }
             else
