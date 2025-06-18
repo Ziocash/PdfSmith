@@ -130,13 +130,16 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
     var response = httpContext.CreateResponse(result);
     return response;
 })
+.WithName("GeneratePdf")
+.WithSummary("Dynamically generates a PDF document using a provided template and model")
+.WithDescription("This endpoint accepts a template (as a string) and a model (as a JSON object) to generate a PDF document on the fly. The template can use either the Razor or Scriban engine, specified via the 'templateEngine' property. The model is injected into the template for dynamic content rendering. Additional PDF options and a custom file name can be provided. The result is a PDF file generated according to the submitted template and data.")
 .WithValidation<PdfGenerationRequest>()
 .Produces(StatusCodes.Status200OK, contentType: MediaTypeNames.Application.Pdf)
 .RequireAuthorization()
 .RequireRateLimiting("PdfGeneration")
 .WithRequestTimeout(new RequestTimeoutPolicy
 {
-    Timeout = TimeSpan.FromSeconds(45),
+    Timeout = TimeSpan.FromSeconds(30),
     TimeoutStatusCode = StatusCodes.Status408RequestTimeout
 });
 
