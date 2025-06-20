@@ -30,7 +30,12 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
             try
             {
                 var model = request.Model.ToExpandoObject();
+
+                cancellationToken.ThrowIfCancellationRequested();
+
                 content = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (TemplateEngineException ex)
             {
@@ -43,6 +48,8 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
         }
 
         var output = await pdfGenerator.CreateAsync(content, request.Options, cancellationToken);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         var fileName = request.FileName.HasValue() ? $"{Path.GetFileNameWithoutExtension(request.FileName)}.pdf" : $"{Guid.NewGuid():N}.pdf";
         var streamFileContent = new StreamFileContent(output, MediaTypeNames.Application.Pdf, fileName);

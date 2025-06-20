@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PdfSmith.DataAccessLayer;
 using SimpleAuthentication.ApiKey;
-using TinyHelpers.Extensions;
 
 namespace PdfSmith.BusinessLayer.Authentication;
 

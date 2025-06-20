@@ -12,8 +12,8 @@
         <PackageReference Include="OperationResultTools" Version="1.0.30" />
         <PackageReference Include="RazorLight" Version="2.3.1" />
         <PackageReference Include="Scriban" Version="6.2.1" />
-        <PackageReference Include="SimpleAuthenticationTools.Abstractions" Version="3.0.7" />
-        <PackageReference Include="TinyHelpers" Version="3.2.25" />
+        <PackageReference Include="SimpleAuthenticationTools.Abstractions" Version="3.0.8" />
+        <PackageReference Include="TinyHelpers" Version="3.2.26" />
     </ItemGroup>
 
     <ItemGroup>

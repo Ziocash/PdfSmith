@@ -1,3 +1,4 @@
+using System.Formats.Asn1;
 using System.Globalization;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
@@ -34,10 +35,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
-});
+builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
 
 builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
@@ -98,6 +96,7 @@ builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
 var app = builder.Build();
+await ConfigureDatabaseAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
@@ -148,3 +147,11 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
 Microsoft.Playwright.Program.Main(["install", "chromium"]);
 
 app.Run();
+
+static async Task ConfigureDatabaseAsync(IServiceProvider serviceProvider)
+{
+    await using var scope = serviceProvider.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+}
