@@ -1,4 +1,3 @@
-using System.Formats.Asn1;
 using System.Globalization;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
@@ -88,6 +87,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<PdfGenerationRequestValidat
 
 builder.Services.AddOpenApi(options =>
 {
+    options.RemoveServerList();
+
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
 });
@@ -108,7 +109,7 @@ app.MapOpenApi();
 
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/openapi/v1.json", app.Environment.ApplicationName);
+    options.SwaggerEndpoint("/openapi/v1.json", $"{app.Environment.ApplicationName} v1");
 });
 
 app.UseRouting();
