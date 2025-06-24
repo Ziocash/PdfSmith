@@ -138,14 +138,14 @@ Scriban is a fast, powerful, safe, and lightweight text templating language.
 ```html
 <html>
 <body>
-    <h1>Hello {{ model.name }}!</h1>
-    <p>Order Date: {{ model.date | date.to_string '%d/%m/%Y' }}</p>
+    <h1>Hello {{ Model.Name }}!</h1>
+    <p>Order Date: {{ Model.Date | date.to_string '%d/%m/%Y' }}</p>
     <ul>
-    {{- for item in model.items }}
-        <li>{{ item.name }} - {{ item.price | object.format "C" }}</li>
+    {{- for item in Model.Items }}
+        <li>{{ item.Name }} - {{ item.Price | object.format "C" }}</li>
     {{- end }}
     </ul>
-    <p>Total: {{ model.total | object.format "C" }}</p>
+    <p>Total: {{ Model.Total | object.format "C" }}</p>
 </body>
 </html>
 ```
@@ -210,8 +210,8 @@ var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.Add("x-api-key", "your-api-key");
 
 var request = new PdfGenerationRequest(
-    template: "<html><body><h1>Hello {{ model.name }}!</h1></body></html>",
-    model: new { name = "John Doe" },
+    template: "<html><body><h1>Hello {{ Model.Name }}!</h1></body></html>",
+    model: new { Name = "John Doe" },
     templateEngine: "scriban"
 );
 
@@ -273,12 +273,12 @@ var htmlTemplate = """
 <body>
     <div class="header">
         <h1>Invoice</h1>
-        <p>Invoice #{{ model.invoiceNumber }}</p>
+        <p>Invoice #{{ Model.InvoiceNumber }}</p>
     </div>
     
     <div class="invoice-details">
-        <p><strong>Customer:</strong> {{ model.customerName }}</p>
-        <p><strong>Date:</strong> {{ model.date | date.to_string '%d/%m/%Y' }}</p>
+        <p><strong>Customer:</strong> {{ Model.CustomerName }}</p>
+        <p><strong>Date:</strong> {{ Model.Date | date.to_string '%d/%m/%Y' }}</p>
     </div>
     
     <table>
@@ -291,19 +291,19 @@ var htmlTemplate = """
             </tr>
         </thead>
         <tbody>
-            {{- for item in model.items }}
+            {{- for item in Model.Items }}
             <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price | object.format "C" }}</td>
-                <td>{{ item.quantity * item.price | object.format "C" }}</td>
+                <td>{{ item.Name }}</td>
+                <td>{{ item.Quantity }}</td>
+                <td>{{ item.Price | object.format "C" }}</td>
+                <td>{{ item.Quantity * item.Price | object.format "C" }}</td>
             </tr>
             {{- end }}
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" class="total">Total:</td>
-                <td class="total">{{ model.total | object.format "C" }}</td>
+                <td class="total">{{ Model.Total | object.format "C" }}</td>
             </tr>
         </tfoot>
     </table>
@@ -380,7 +380,6 @@ Key configuration options in `appsettings.json`:
 ### Environment Variables
 
 - `PLAYWRIGHT_BROWSERS_PATH`: Custom path for Playwright browsers installation
-- `ASPNETCORE_ENVIRONMENT`: Environment setting (Development, Production, etc.)
 
 ### Playwright Configuration
 
