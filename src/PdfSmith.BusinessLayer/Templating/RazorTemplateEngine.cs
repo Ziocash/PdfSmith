@@ -12,8 +12,11 @@ public class RazorTemplateEngine : ITemplateEngine
 
     public RazorTemplateEngine()
     {
+        var assembly = Assembly.GetExecutingAssembly();
+
         engine = new RazorLightEngineBuilder()
-            .UseEmbeddedResourcesProject(Assembly.GetExecutingAssembly())
+            .UseEmbeddedResourcesProject(assembly)
+            .SetOperatingAssembly(assembly)
             .UseMemoryCachingProvider()
             .Build();
     }
@@ -22,12 +25,19 @@ public class RazorTemplateEngine : ITemplateEngine
     {
         try
         {
-            var result = await engine.CompileRenderStringAsync(template, template, model);
+            var content = $"""
+                @using System
+                @using System.Collections.Generic
+                @using System.Linq
+                {template}
+                """;
+
+            var result = await engine.CompileRenderStringAsync(template, content, model);
             return result;
         }
         catch (TemplateCompilationException ex)
         {
-            throw new TemplateEngineException(ex.Message);
+            throw new TemplateEngineException(ex.Message, ex);
         }
     }
 }
