@@ -115,6 +115,8 @@ app.UseSwaggerUI(options =>
 app.UseRouting();
 //app.UseCors();
 
+app.UseStaticFiles();
+
 app.UseRequestLocalization();
 
 app.UseAuthentication();
@@ -122,6 +124,11 @@ app.UseAuthorization();
 
 app.UseRateLimiter();
 app.UseRequestTimeouts();
+
+app.MapGet("/", () => Results.Redirect("/index.html"))
+.WithName("Home")
+.WithSummary("Redirects to the PdfSmith landing page")
+.ExcludeFromDescription();
 
 app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfService, HttpContext httpContext) =>
 {
