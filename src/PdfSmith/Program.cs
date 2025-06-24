@@ -112,11 +112,11 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/openapi/v1.json", $"{app.Environment.ApplicationName} v1");
 });
 
-app.UseRouting();
-//app.UseCors();
-
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+app.UseRouting();
+//app.UseCors();
 
 app.UseRequestLocalization();
 
@@ -125,7 +125,6 @@ app.UseAuthorization();
 
 app.UseRateLimiter();
 app.UseRequestTimeouts();
-
 
 app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfService, HttpContext httpContext) =>
 {
