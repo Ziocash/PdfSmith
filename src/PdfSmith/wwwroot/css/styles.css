@@ -171,6 +171,16 @@ nav {
     margin: 1rem 0;
 }
 
+.code-block pre {
+    margin: 0;
+}
+
+.code-block code {
+    font-family: inherit;
+    color: inherit;
+    background: none;
+}
+
 footer {
     text-align: center;
     padding: 2rem 0;
