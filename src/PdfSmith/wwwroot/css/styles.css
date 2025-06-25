@@ -54,7 +54,7 @@ nav {
 
 .hero {
     text-align: center;
-    padding: 4rem 0;
+    padding: 3rem 0;
     color: white;
 }
 
@@ -68,6 +68,35 @@ nav {
     font-size: 1.3rem;
     margin-bottom: 2rem;
     opacity: 0.9;
+}
+
+.api-key-notice {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.api-key-notice p {
+    color: white;
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 1;
+}
+
+.api-key-notice a {
+    color: #ffeb3b;
+    text-decoration: underline;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.api-key-notice a:hover {
+    color: #fff176;
+    text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
 }
 
 .cta-buttons {
@@ -108,7 +137,7 @@ nav {
 .features {
     background: white;
     padding: 4rem 0;
-    margin: 4rem 0;
+    margin: 2rem 0;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
@@ -152,7 +181,7 @@ nav {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     padding: 3rem 0;
-    margin: 2rem 0;
+    margin: 1rem 0;
     border-radius: 20px;
     color: white;
 }
@@ -195,6 +224,15 @@ footer {
 
     .hero p {
         font-size: 1.1rem;
+    }
+
+    .api-key-notice {
+        margin: 1.5rem 0;
+        padding: 1rem;
+    }
+
+    .api-key-notice p {
+        font-size: 1rem;
     }
 
     .nav-links {
