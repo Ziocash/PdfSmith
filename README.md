@@ -1,6 +1,6 @@
-# PdfSmith
+# PDF Smith
 
-A powerful REST API service that generates PDF documents from dynamic HTML templates. PdfSmith supports multiple template engines, offers flexible PDF configuration options, and provides secure API key-based authentication with rate limiting.
+A powerful REST API service that generates PDF documents from dynamic HTML templates. PDF Smith supports multiple template engines, offers flexible PDF configuration options, and provides secure API key-based authentication with rate limiting.
 
 ## 🚀 Features
 
