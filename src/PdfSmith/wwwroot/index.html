@@ -78,7 +78,7 @@
             <div class="container">
                 <h2>Quick Start Example</h2>
                 <p style="text-align: center; margin-bottom: 2rem;">Send a POST request to generate your first PDF:</p>
-                
+
                 <div class="code-block">
                     <strong>Endpoint:</strong> POST /api/pdf<br>
                     <strong>Content-Type:</strong> application/json<br>
@@ -88,32 +88,28 @@
 
                 <div class="code-block">
 <pre><code>{
-   "template":"&lt;h1&gt;Hello @Model.Name!&lt;/h1&gt;",
-   "model":{
-      "Name":"World"
+   "template": "&lt;h1&gt;Hello @Model.Name!&lt;/h1&gt;",
+   "model": {
+      "Name": "World"
    },
-   "templateEngine":"razor",
-   "pdfOptions":{
-      "margin":{
-         "top":"20",
-         "bottom":"20",
-         "left":"20",
-         "right":"20"
+   "templateEngine": "razor",
+   "pdfOptions": {
+      "margin": {
+         "top": "2.5cm",
+         "bottom": "2cm",
+         "left": "2.5cm",
+         "right": "2.5cm"
       }
    }
 }</code></pre>
                 </div>
 
-                <div style="text-align: center; margin-top: 2rem;">
-                    <a href="/swagger" class="btn btn-primary">Try it in Swagger UI</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="api-key" class="api-example">
-            <div class="container">
                 <div class="api-key-notice">
                     <p>🔑 <strong>Want to try PDF Smith?</strong> Request your API key by filling out our form at <a href="https://tinyurl.com/pdfsmith-apikeyrequest" target="_blank" rel="noopener noreferrer">tinyurl.com/pdfsmith-apikeyrequest</a></p>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="/swagger" class="btn btn-primary">If you already have a key, try it in Swagger UI</a>
                 </div>
             </div>
         </section>
@@ -146,7 +142,7 @@
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-10px) scale(1.02)';
             });
-            
+
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0) scale(1)';
             });
