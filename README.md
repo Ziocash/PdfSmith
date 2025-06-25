@@ -15,15 +15,15 @@ A powerful REST API service that generates PDF documents from dynamic HTML templ
 
 ## 📋 Table of Contents
 
-- [Installation](#installation)
-- [Authentication](#authentication)
-- [API Reference](#api-reference)
-- [Template Engines](#template-engines)
-- [PDF Configuration](#pdf-configuration)
-- [Usage Examples](#usage-examples)
-- [Error Handling](#error-handling)
-- [Rate Limiting](#rate-limiting)
-- [Configuration](#configuration)
+- [Installation](#️-installation)
+- [Authentication](#-authentication)
+- [API Reference](#-api-reference)
+- [Template Engines](#-template-engines)
+- [PDF Configuration](#-pdf-configuration)
+- [Usage Examples](#-usage-examples)
+- [Error Handling](#️-error-handling)
+- [Rate Limiting](#️-rate-limiting)
+- [Configuration](#️-configuration)
 
 ## 🛠️ Installation
 
@@ -104,7 +104,7 @@ A default administrator account is created automatically with the following conf
       "data": "structure"
     }
   },
-  "templateEngine": "scriban",
+  "templateEngine": "razor",
   "fileName": "document.pdf",
   "options": {
     "pageSize": "A4",
@@ -128,28 +128,6 @@ A default administrator account is created automatically with the following conf
 
 PdfSmith supports two powerful template engines:
 
-### Scriban Template Engine
-
-Scriban is a fast, powerful, safe, and lightweight text templating language.
-
-**Key:** `"scriban"`
-
-**Example:**
-```html
-<html>
-<body>
-    <h1>Hello {{ Model.Name }}!</h1>
-    <p>Order Date: {{ Model.Date | date.to_string '%d/%m/%Y' }}</p>
-    <ul>
-    {{- for item in Model.Items }}
-        <li>{{ item.Name }} - {{ item.Price | object.format "C" }}</li>
-    {{- end }}
-    </ul>
-    <p>Total: {{ Model.Total | object.format "C" }}</p>
-</body>
-</html>
-```
-
 ### Razor Template Engine
 
 Razor provides C#-based templating with full programming capabilities.
@@ -169,6 +147,28 @@ Razor provides C#-based templating with full programming capabilities.
     }
     </ul>
     <p>Total: @Model.Total.ToString("C")</p>
+</body>
+</html>
+```
+
+### Scriban Template Engine
+
+Scriban is a fast, powerful, safe, and lightweight text templating language.
+
+**Key:** `"scriban"`
+
+**Example:**
+```html
+<html>
+<body>
+    <h1>Hello {{ Model.Name }}!</h1>
+    <p>Order Date: {{ Model.Date | date.to_string '%d/%m/%Y' }}</p>
+    <ul>
+    {{- for item in Model.Items }}
+        <li>{{ item.Name }} - {{ item.Price | object.format "C" }}</li>
+    {{- end }}
+    </ul>
+    <p>Total: {{ Model.Total | object.format "C" }}</p>
 </body>
 </html>
 ```
@@ -210,9 +210,9 @@ var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.Add("x-api-key", "your-api-key");
 
 var request = new PdfGenerationRequest(
-    template: "<html><body><h1>Hello {{ Model.Name }}!</h1></body></html>",
+    template: "<html><body><h1>Hello @Model.Name!</h1></body></html>",
     model: new { Name = "John Doe" },
-    templateEngine: "scriban"
+    templateEngine: "razor"
 );
 
 var response = await httpClient.PostAsJsonAsync("https://localhost:7226/api/pdf", request);
@@ -237,7 +237,7 @@ var request = new PdfGenerationRequest(
             Right: "25mm"
         )
     },
-    templateEngine: "scriban",
+    templateEngine: "razor",
     fileName: "invoice.pdf"
 );
 ```
@@ -273,12 +273,12 @@ var htmlTemplate = """
 <body>
     <div class="header">
         <h1>Invoice</h1>
-        <p>Invoice #{{ Model.InvoiceNumber }}</p>
+        <p>Invoice #@Model.InvoiceNumber</p>
     </div>
     
     <div class="invoice-details">
-        <p><strong>Customer:</strong> {{ Model.CustomerName }}</p>
-        <p><strong>Date:</strong> {{ Model.Date | date.to_string '%d/%m/%Y' }}</p>
+        <p><strong>Customer:</strong> @Model.CustomerName</p>
+        <p><strong>Date:</strong> @Model.Date.ToString("dd/MM/yyyy")</p>
     </div>
     
     <table>
@@ -291,19 +291,20 @@ var htmlTemplate = """
             </tr>
         </thead>
         <tbody>
-            {{- for item in Model.Items }}
+            @foreach(var item in Model.Items)
+            {
             <tr>
-                <td>{{ item.Name }}</td>
-                <td>{{ item.Quantity }}</td>
-                <td>{{ item.Price | object.format "C" }}</td>
-                <td>{{ item.Quantity * item.Price | object.format "C" }}</td>
+                <td>@item.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@((item.Quantity * item.Price).ToString("C"))</td>
             </tr>
-            {{- end }}
+            }
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" class="total">Total:</td>
-                <td class="total">{{ Model.Total | object.format "C" }}</td>
+                <td class="total">@Model.Total.ToString("C")</td>
             </tr>
         </tfoot>
     </table>
@@ -311,7 +312,7 @@ var htmlTemplate = """
 </html>
 """;
 
-var request = new PdfGenerationRequest(htmlTemplate, order, templateEngine: "scriban");
+var request = new PdfGenerationRequest(htmlTemplate, order, templateEngine: "razor");
 ```
 
 ## ⚠️ Error Handling
@@ -383,9 +384,21 @@ Key configuration options in `appsettings.json`:
 
 ### Playwright Configuration
 
-Chromium is automatically installed via Playwright. On Windows, browsers are installed to:
+Chromium is automatically installed via Playwright. If `PLAYWRIGHT_BROWSERS_PATH` isn't specified, browsers are installed to the default locations:
+
+**Windows:**
 ```
 %USERPROFILE%\AppData\Local\ms-playwright
+```
+
+**Linux:**
+```
+~/.cache/ms-playwright
+```
+
+**macOS:**
+```
+~/Library/Caches/ms-playwright
 ```
 
 ## 🔧 Development
@@ -403,14 +416,6 @@ PdfSmith/
 │   └── PdfSmith.Client/             # Example client application
 └── README.md
 ```
-
-### Key Services
-
-- **PdfService**: Core PDF generation logic
-- **ChromiumPdfGenerator**: Chromium-based PDF generation
-- **ScribanTemplateEngine**: Scriban template processing
-- **RazorTemplateEngine**: Razor template processing
-- **SubscriptionValidator**: API key validation and rate limiting
 
 ## 🤝 Contributing
 
