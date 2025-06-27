@@ -91,6 +91,7 @@ builder.Services.AddOpenApi(options =>
 
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
+    options.AddDefaultProblemDetailsResponse();
 });
 
 builder.Services.AddDefaultProblemDetails();
