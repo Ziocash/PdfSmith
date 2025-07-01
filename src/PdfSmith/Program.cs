@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MinimalHelpers.FluentValidation;
 using OperationResults.AspNetCore.Http;
 using PdfSmith.BusinessLayer.Authentication;
+using PdfSmith.BusinessLayer.Extensions;
 using PdfSmith.BusinessLayer.Generators;
 using PdfSmith.BusinessLayer.Services;
 using PdfSmith.BusinessLayer.Services.Interfaces;
@@ -33,6 +34,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
+builder.Services.AddTimeZoneService();
 
 builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
 
@@ -92,6 +94,7 @@ builder.Services.AddOpenApi(options =>
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
     options.AddDefaultProblemDetailsResponse();
+    options.AddTimeZoneHeader();
 });
 
 builder.Services.AddDefaultProblemDetails();
