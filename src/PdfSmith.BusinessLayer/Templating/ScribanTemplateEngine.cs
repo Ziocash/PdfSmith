@@ -33,5 +33,5 @@ public partial class ScribanTemplateEngine(TimeProvider timeProvider) : ITemplat
     }
 
     [GeneratedRegex("(?<![\\w$])date\\.now(?![\\w$])")]
-    public static partial Regex DateNowRegex { get; }
+    private static partial Regex DateNowRegex { get; }
 }
