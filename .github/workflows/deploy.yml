@@ -1,4 +1,6 @@
 name: Deploy on Azure
+permissions:
+  contents: read
 
 on:
   push:
