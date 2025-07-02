@@ -95,15 +95,17 @@ builder.Services.AddOpenApi(options =>
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
     options.AddDefaultProblemDetailsResponse();
+
+    options.AddOperationParameters();
 });
 
 builder.Services.AddOpenApiOperationParameters(options =>
 {
     options.Parameters.Add(new()
     {
-        Name = TimeZoneService.X_TIME_ZONE,
+        Name = TimeZoneService.HeaderKey,
         In = ParameterLocation.Header,
-        Required = true,
+        Required = false,
         Schema = OpenApiSchemaHelper.CreateStringSchema()
     });
 });

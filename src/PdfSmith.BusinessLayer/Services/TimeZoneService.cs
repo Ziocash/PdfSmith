@@ -5,7 +5,7 @@ namespace PdfSmith.BusinessLayer.Services;
 
 public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZoneService
 {
-    public static readonly string X_TIME_ZONE = "x-time-zone";
+    public static readonly string HeaderKey = "x-time-zone";
 
     public TimeZoneInfo? GetTimeZone()
     {
@@ -21,7 +21,7 @@ public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZo
 
     public string? GetTimeZoneHeaderValue()
     {
-        if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(X_TIME_ZONE, out var timeZone) ?? false)
+        if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(HeaderKey, out var timeZone) ?? false)
         {
             return timeZone.ToString();
         }
