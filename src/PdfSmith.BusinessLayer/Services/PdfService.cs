@@ -27,11 +27,12 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
                 return Result.Fail(FailureReasons.ClientError, "Unable to render the template", $"The template engine '{request.TemplateEngine}' has not been registered");
             }
 
+            var timeZoneInfo = timeZoneService.GetTimeZone();
+            var timeZoneId = timeZoneService.GetTimeZoneHeaderValue();
 
-            var (timeZone, timeZoneInfo) = timeZoneService.GetTimeZone();
-            if (timeZoneInfo is null)
+            if (timeZoneId is not null && timeZoneInfo is null)
             {
-                return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZone}' is invalid or is not available on the system");
+                return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZoneId}' is invalid or is not available on the system");
             }
 
             try

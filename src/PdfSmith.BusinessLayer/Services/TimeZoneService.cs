@@ -2,21 +2,31 @@
 using PdfSmith.BusinessLayer.Services.Interfaces;
 
 namespace PdfSmith.BusinessLayer.Services;
+
 public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZoneService
 {
     public static readonly string X_TIME_ZONE = "x-time-zone";
-    private static readonly string UTC = "Utc";
 
-    public (string? TimeZone, TimeZoneInfo? TimeZoneInfo) GetTimeZone()
+    public TimeZoneInfo? GetTimeZone()
+    {
+        var timeZoneId = GetTimeZoneHeaderValue();
+
+        if (timeZoneId is null)
+        {
+            return null;
+        }
+
+        return GetTimeZoneInfo(timeZoneId);
+    }
+
+    public string? GetTimeZoneHeaderValue()
     {
         if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(X_TIME_ZONE, out var timeZone) ?? false)
         {
-            return string.IsNullOrWhiteSpace(timeZone)
-                ? (timeZone.ToString(), null)
-                : (timeZone.ToString(), GetTimeZoneInfo(timeZone!));
+            return timeZone.ToString();
         }
 
-        return (UTC, TimeZoneInfo.Utc);
+        return null;
     }
 
     private static TimeZoneInfo? GetTimeZoneInfo(string timeZone)

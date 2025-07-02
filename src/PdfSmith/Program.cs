@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MinimalHelpers.FluentValidation;
 using OperationResults.AspNetCore.Http;
 using PdfSmith.BusinessLayer.Authentication;
@@ -94,7 +95,17 @@ builder.Services.AddOpenApi(options =>
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
     options.AddDefaultProblemDetailsResponse();
-    options.AddTimeZoneHeader();
+});
+
+builder.Services.AddOpenApiOperationParameters(options =>
+{
+    options.Parameters.Add(new()
+    {
+        Name = TimeZoneService.X_TIME_ZONE,
+        In = ParameterLocation.Header,
+        Required = true,
+        Schema = OpenApiSchemaHelper.CreateStringSchema()
+    });
 });
 
 builder.Services.AddDefaultProblemDetails();

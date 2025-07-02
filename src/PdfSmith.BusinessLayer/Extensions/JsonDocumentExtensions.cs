@@ -7,10 +7,10 @@ namespace PdfSmith.BusinessLayer.Extensions;
 
 public static class JsonDocumentExtensions
 {
-    public static object ToExpandoObject(this JsonDocument document, TimeZoneInfo timeZoneInfo)
+    public static object ToExpandoObject(this JsonDocument document, TimeZoneInfo? timeZoneInfo)
         => ConvertElement(document.RootElement, timeZoneInfo);
 
-    private static object ConvertElement(JsonElement element, TimeZoneInfo timeZoneInfo)
+    private static object ConvertElement(JsonElement element, TimeZoneInfo? timeZoneInfo)
     {
         if (element.ValueKind == JsonValueKind.Object)
         {
@@ -30,7 +30,7 @@ public static class JsonDocumentExtensions
         throw new InvalidOperationException($"Unsupported JSON ValueKind: {element.ValueKind}");
     }
 
-    private static object? ConvertValue(JsonElement element, TimeZoneInfo timeZoneInfo)
+    private static object? ConvertValue(JsonElement element, TimeZoneInfo? timeZoneInfo)
     {
         return element.ValueKind switch
         {
@@ -44,7 +44,7 @@ public static class JsonDocumentExtensions
             _ => throw new UnreachableException($"Unsupported JSON ValueKind: {element.ValueKind}")
         };
 
-        static object? ParseStringValue(JsonElement element, TimeZoneInfo timeZoneInfo)
+        static object? ParseStringValue(JsonElement element, TimeZoneInfo? timeZoneInfo)
         {
             var value = element.GetString();
             if (string.IsNullOrWhiteSpace(value))
@@ -59,7 +59,14 @@ public static class JsonDocumentExtensions
 
             if (element.TryGetDateTime(out var dateTime))
             {
-                return TimeZoneInfo.ConvertTime(dateTime, timeZoneInfo);
+                if (timeZoneInfo is null)
+                {
+                    return dateTime;
+                }
+
+                return dateTime.Kind == DateTimeKind.Unspecified
+                    ? TimeZoneInfo.ConvertTime(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc), timeZoneInfo)
+                    : TimeZoneInfo.ConvertTime(dateTime, timeZoneInfo);
             }
 
             if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var timeSpan))

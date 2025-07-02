@@ -2,5 +2,6 @@
 
 public interface ITimeZoneService
 {
-    (string? TimeZone, TimeZoneInfo? TimeZoneInfo) GetTimeZone();
+    TimeZoneInfo? GetTimeZone();
+    string? GetTimeZoneHeaderValue();
 }
