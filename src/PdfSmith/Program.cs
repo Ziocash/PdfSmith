@@ -113,6 +113,8 @@ builder.Services.AddOpenApiOperationParameters(options =>
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
+builder.Services.AddSingleton<TimeProvider, TimeZoneTimeProvider>();
+
 var app = builder.Build();
 await ConfigureDatabaseAsync(app.Services);
 
