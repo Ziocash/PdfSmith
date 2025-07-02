@@ -28,11 +28,15 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
             }
 
             var timeZoneInfo = timeZoneService.GetTimeZone();
-            var timeZoneId = timeZoneService.GetTimeZoneHeaderValue();
 
-            if (timeZoneId is not null && timeZoneInfo is null)
+            if (timeZoneInfo is null)
             {
-                return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZoneId}' is invalid or is not available on the system");
+                var timeZoneId = timeZoneService.GetTimeZoneHeaderValue();
+                if (timeZoneId is not null)
+                {
+                    // If timeZoneInfo is null, but timeZoneId has a value, it means that the time zone specified in the header is invalid.
+                    return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZoneId}' is invalid or is not available on the system");
+                }
             }
 
             try
