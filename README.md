@@ -11,7 +11,6 @@ A powerful REST API service that generates PDF documents from dynamic HTML templ
 - **Rate Limiting**: Configurable request limits per subscription
 - **Localization Support**: Multi-language template rendering
 - **OpenAPI Documentation**: Built-in Swagger documentation
-- **High Performance**: Built on .NET 9.0 with asynchronous operations
 
 ## 📋 Table of Contents
 
