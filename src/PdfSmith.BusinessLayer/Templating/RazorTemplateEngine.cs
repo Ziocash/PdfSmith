@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
 using PdfSmith.BusinessLayer.Exceptions;
 using RazorLight;
 using RazorLight.Compilation;
@@ -13,7 +14,7 @@ public partial class RazorTemplateEngine : ITemplateEngine
     private readonly RazorLightEngine engine;
     private readonly TimeProvider timeProvider;
 
-    public RazorTemplateEngine(TimeProvider timeProvider)
+    public RazorTemplateEngine([FromKeyedServices("timezone")] TimeProvider timeProvider)
     {
         var assembly = Assembly.GetExecutingAssembly();
 
@@ -30,7 +31,8 @@ public partial class RazorTemplateEngine : ITemplateEngine
     {
         try
         {
-            var sanitizedTemplate = DateTimeNowRegex.Replace(template, "@ViewBag.TimeProvider.GetLocalNow()");
+            var sanitizedTemplate = DateTimeNowRegex.Replace(template, "@ViewBag.TimeProvider.GetLocalNow().DateTime");
+            sanitizedTemplate = DateTimeOffsetNowRegex.Replace(sanitizedTemplate, "@ViewBag.TimeProvider.GetLocalNow()");
 
             var content = $"""
                 @using System
@@ -52,7 +54,10 @@ public partial class RazorTemplateEngine : ITemplateEngine
         }
     }
 
-    [GeneratedRegex("(?<![\\w$])@DateTime\\.Now(?![\\w$])")]
+    [GeneratedRegex("(?<![\\w$])(?:@)?(?:System\\.)?DateTime\\.Now(?![\\w$])")]
     private static partial Regex DateTimeNowRegex { get; }
+
+    [GeneratedRegex("(?<![\\w$])(?:@)?(?:System\\.)?DateTimeOffset\\.Now(?![\\w$])")]
+    private static partial Regex DateTimeOffsetNowRegex { get; }
 }
 

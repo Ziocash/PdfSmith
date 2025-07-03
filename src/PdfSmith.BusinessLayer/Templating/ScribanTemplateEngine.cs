@@ -1,14 +1,15 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
 using PdfSmith.BusinessLayer.Exceptions;
 using Scriban;
 using Scriban.Runtime;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
-public partial class ScribanTemplateEngine(TimeProvider timeProvider) : ITemplateEngine
+public partial class ScribanTemplateEngine([FromKeyedServices("timezone")] TimeProvider timeProvider) : ITemplateEngine
 {
-    private static readonly string DateTimeZonePlaceholder = "date_time_zone";
+    private const string DateTimeZonePlaceholder = "date_time_zone";
 
     public async Task<string> RenderAsync(string text, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {

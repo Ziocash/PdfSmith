@@ -26,8 +26,6 @@ using TinyHelpers.AspNetCore.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton(TimeProvider.System);
-
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -113,7 +111,7 @@ builder.Services.AddOpenApiOperationParameters(options =>
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
-builder.Services.AddSingleton<TimeProvider, TimeZoneTimeProvider>();
+builder.Services.AddKeyedSingleton<TimeProvider, TimeZoneTimeProvider>("timezone");
 
 var app = builder.Build();
 await ConfigureDatabaseAsync(app.Services);
