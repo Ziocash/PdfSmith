@@ -27,6 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<TimeZoneTimeProvider>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -38,6 +39,8 @@ builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
 builder.Services.AddTimeZoneService();
 
 builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
+
+builder.Services.AddRazorLightEngine();
 
 builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
@@ -112,8 +115,6 @@ builder.Services.AddOpenApiOperationParameters(options =>
 
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
-
-builder.Services.AddKeyedSingleton<TimeProvider, TimeZoneTimeProvider>("timezone");
 
 var app = builder.Build();
 await ConfigureDatabaseAsync(app.Services);

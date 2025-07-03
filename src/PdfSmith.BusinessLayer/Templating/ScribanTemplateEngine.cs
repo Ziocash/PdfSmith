@@ -1,13 +1,13 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.DependencyInjection;
 using PdfSmith.BusinessLayer.Exceptions;
+using PdfSmith.BusinessLayer.Services;
 using Scriban;
 using Scriban.Runtime;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
-public partial class ScribanTemplateEngine([FromKeyedServices("timezone")] TimeProvider timeProvider) : ITemplateEngine
+public partial class ScribanTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
 {
     private const string DateTimeZonePlaceholder = "date_time_zone";
 
@@ -26,7 +26,7 @@ public partial class ScribanTemplateEngine([FromKeyedServices("timezone")] TimeP
         context.PushCulture(culture);
 
         var dateWithTimeZoneScript = new ScriptObject();
-        dateWithTimeZoneScript.Import(DateTimeZonePlaceholder, new Func<DateTime>(() => timeProvider.GetLocalNow().DateTime));
+        dateWithTimeZoneScript.Import(DateTimeZonePlaceholder, new Func<DateTime>(() => timeZoneTimeProvider.GetLocalNow().DateTime));
         context.PushGlobal(dateWithTimeZoneScript);
 
         var result = await template.RenderAsync(context);

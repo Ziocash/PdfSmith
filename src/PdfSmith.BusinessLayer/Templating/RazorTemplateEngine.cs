@@ -1,51 +1,32 @@
-﻿using System.Dynamic;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.DependencyInjection;
 using PdfSmith.BusinessLayer.Exceptions;
 using RazorLight;
 using RazorLight.Compilation;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
-public partial class RazorTemplateEngine : ITemplateEngine
+public partial class RazorTemplateEngine(IRazorLightEngine engine) : ITemplateEngine
 {
-    private readonly RazorLightEngine engine;
-    private readonly TimeProvider timeProvider;
-
-    public RazorTemplateEngine([FromKeyedServices("timezone")] TimeProvider timeProvider)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        engine = new RazorLightEngineBuilder()
-            .UseEmbeddedResourcesProject(assembly)
-            .SetOperatingAssembly(assembly)
-            .UseMemoryCachingProvider()
-            .Build();
-
-        this.timeProvider = timeProvider;
-    }
+    private readonly IRazorLightEngine engine = engine;
 
     public async Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         try
         {
-            var sanitizedTemplate = DateTimeNowRegex.Replace(template, "@ViewBag.TimeProvider.GetLocalNow().DateTime");
-            sanitizedTemplate = DateTimeOffsetNowRegex.Replace(sanitizedTemplate, "@ViewBag.TimeProvider.GetLocalNow()");
+            var sanitizedTemplate = DateTimeNowRegex.Replace(template, "@tp.GetLocalNow().DateTime");
+            sanitizedTemplate = DateTimeOffsetNowRegex.Replace(sanitizedTemplate, "@tp.GetLocalNow()");
 
             var content = $"""
                 @using System
                 @using System.Collections.Generic
                 @using System.Linq
+                @inject PdfSmith.BusinessLayer.Services.TimeZoneTimeProvider tp
 
                 {sanitizedTemplate}
                 """;
 
-            dynamic modelWithServices = new ExpandoObject();
-            modelWithServices.TimeProvider = timeProvider;
-
-            var result = await engine.CompileRenderStringAsync(sanitizedTemplate, content, model, modelWithServices);
+            var result = await engine.CompileRenderStringAsync(sanitizedTemplate, content, model);
             return result;
         }
         catch (TemplateCompilationException ex)
