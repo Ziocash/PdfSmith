@@ -92,6 +92,7 @@ A default administrator account is created automatically with the following conf
 **Headers:**
 - `x-api-key`: Your API key (required)
 - `Accept-Language`: Language preference (optional, e.g., "en-US", "it-IT")
+- `x-time-zone`: The IANA time zone identifier to handle different time zones (optional, if not present it will be the default UTC)
 
 **Request Body:**
 ```json

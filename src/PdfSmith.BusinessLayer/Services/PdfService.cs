@@ -12,7 +12,7 @@ using TinyHelpers.Extensions;
 
 namespace PdfSmith.BusinessLayer.Services;
 
-public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGenerator) : IPdfService
+public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGenerator, ITimeZoneService timeZoneService) : IPdfService
 {
     public async Task<Result<StreamFileContent>> GeneratePdfAsync(PdfGenerationRequest request, CancellationToken cancellationToken)
     {
@@ -27,9 +27,21 @@ public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGener
                 return Result.Fail(FailureReasons.ClientError, "Unable to render the template", $"The template engine '{request.TemplateEngine}' has not been registered");
             }
 
+            var timeZoneInfo = timeZoneService.GetTimeZone();
+
+            if (timeZoneInfo is null)
+            {
+                var timeZoneId = timeZoneService.GetTimeZoneHeaderValue();
+                if (timeZoneId is not null)
+                {
+                    // If timeZoneInfo is null, but timeZoneId has a value, it means that the time zone specified in the header is invalid.
+                    return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZoneId}' is invalid or is not available on the system");
+                }
+            }
+
             try
             {
-                var model = request.Model.ToExpandoObject();
+                var model = request.Model.ToExpandoObject(timeZoneInfo);
 
                 cancellationToken.ThrowIfCancellationRequested();
 

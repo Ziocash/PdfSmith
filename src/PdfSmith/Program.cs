@@ -6,9 +6,11 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MinimalHelpers.FluentValidation;
 using OperationResults.AspNetCore.Http;
 using PdfSmith.BusinessLayer.Authentication;
+using PdfSmith.BusinessLayer.Extensions;
 using PdfSmith.BusinessLayer.Generators;
 using PdfSmith.BusinessLayer.Services;
 using PdfSmith.BusinessLayer.Services.Interfaces;
@@ -25,6 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<TimeZoneTimeProvider>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -33,8 +36,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
+builder.Services.AddTimeZoneService();
 
 builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
+
+builder.Services.AddRazorLightEngine();
 
 builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
@@ -92,6 +98,19 @@ builder.Services.AddOpenApi(options =>
     options.AddSimpleAuthentication(builder.Configuration);
     options.AddAcceptLanguageHeader();
     options.AddDefaultProblemDetailsResponse();
+
+    options.AddOperationParameters();
+});
+
+builder.Services.AddOpenApiOperationParameters(options =>
+{
+    options.Parameters.Add(new()
+    {
+        Name = TimeZoneService.HeaderKey,
+        In = ParameterLocation.Header,
+        Required = false,
+        Schema = OpenApiSchemaHelper.CreateStringSchema()
+    });
 });
 
 builder.Services.AddDefaultProblemDetails();
