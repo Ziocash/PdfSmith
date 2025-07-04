@@ -11,12 +11,12 @@ public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZo
     {
         var timeZoneId = GetTimeZoneHeaderValue();
 
-        if (timeZoneId is null)
+        if (timeZoneId is null || !TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var timeZoneInfo))
         {
             return null;
         }
 
-        return GetTimeZoneInfo(timeZoneId);
+        return timeZoneInfo;
     }
 
     public string? GetTimeZoneHeaderValue()
@@ -24,16 +24,6 @@ public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZo
         if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(HeaderKey, out var timeZone) ?? false)
         {
             return timeZone.ToString();
-        }
-
-        return null;
-    }
-
-    private static TimeZoneInfo? GetTimeZoneInfo(string timeZone)
-    {
-        if (TimeZoneInfo.TryFindSystemTimeZoneById(timeZone, out var timeZoneInfo))
-        {
-            return timeZoneInfo;
         }
 
         return null;

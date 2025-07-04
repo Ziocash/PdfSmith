@@ -47,6 +47,7 @@ public static class JsonDocumentExtensions
         static object? ParseStringValue(JsonElement element, TimeZoneInfo? timeZoneInfo)
         {
             var value = element.GetString();
+
             if (string.IsNullOrWhiteSpace(value))
             {
                 return value;

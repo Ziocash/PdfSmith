@@ -8,8 +8,6 @@ namespace PdfSmith.BusinessLayer.Templating;
 
 public partial class RazorTemplateEngine(IRazorLightEngine engine) : ITemplateEngine
 {
-    private readonly IRazorLightEngine engine = engine;
-
     public async Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         try
@@ -21,6 +19,7 @@ public partial class RazorTemplateEngine(IRazorLightEngine engine) : ITemplateEn
                 @using System
                 @using System.Collections.Generic
                 @using System.Linq
+
                 @inject PdfSmith.BusinessLayer.Services.TimeZoneTimeProvider timeZoneTimeProvider
 
                 {sanitizedTemplate}

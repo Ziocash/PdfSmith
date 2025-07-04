@@ -40,11 +40,13 @@ cd PdfSmith
 ```
 
 2. Build the solution:
+ 
 ```bash
 dotnet build
 ```
 
 3. Configure your database connection in `appsettings.json`:
+
 ```json
 {
   "ConnectionStrings": {
@@ -54,6 +56,7 @@ dotnet build
 ```
 
 4. Run the application:
+
 ```bash
 dotnet run --project src/PdfSmith
 ```
@@ -90,11 +93,13 @@ A default administrator account is created automatically with the following conf
 **Endpoint:** `POST /api/pdf`
 
 **Headers:**
+
 - `x-api-key`: Your API key (required)
 - `Accept-Language`: Language preference (optional, e.g., "en-US", "it-IT")
-- `x-time-zone`: The IANA time zone identifier to handle different time zones (optional, if not present it will be the default UTC)
+- `x-time-zone`: The IANA time zone identifier to handle different time zones (optional, if not present UTC will be used)
 
 **Request Body:**
+
 ```json
 {
   "template": "HTML template string",
@@ -135,6 +140,7 @@ Razor provides C#-based templating with full programming capabilities.
 **Key:** `"razor"`
 
 **Example:**
+
 ```html
 <html>
 <body>
@@ -158,6 +164,7 @@ Scriban is a fast, powerful, safe, and lightweight text templating language.
 **Key:** `"scriban"`
 
 **Example:**
+
 ```html
 <html>
 <body>
@@ -176,15 +183,19 @@ Scriban is a fast, powerful, safe, and lightweight text templating language.
 ## 📄 PDF Configuration
 
 ### Page Size Options
+
 - Standard sizes: `"A4"`, `"A3"`, `"A5"`, `"Letter"`, `"Legal"`
 - Custom sizes: `"210mm x 297mm"` or `"8.5in x 11in"`
 
 ### Orientation
+
 - `"Portrait"` (default)
 - `"Landscape"`
 
 ### Margins
+
 Configure margins using CSS units:
+
 ```json
 {
   "margin": {
@@ -350,6 +361,7 @@ Rate limiting is enforced per subscription:
 - **Configurable**: Administrators can set custom limits per subscription
 
 Example rate limit headers:
+
 ```
 Retry-After: 60
 ```
@@ -368,12 +380,6 @@ Key configuration options in `appsettings.json`:
   "AppSettings": {
     "AdministratorUserName": "admin",
     "AdministratorApiKey": "your-admin-api-key"
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
   }
 }
 ```
@@ -387,16 +393,19 @@ Key configuration options in `appsettings.json`:
 Chromium is automatically installed via Playwright. If `PLAYWRIGHT_BROWSERS_PATH` isn't specified, browsers are installed to the default locations:
 
 **Windows:**
+
 ```
 %USERPROFILE%\AppData\Local\ms-playwright
 ```
 
 **Linux:**
+
 ```
 ~/.cache/ms-playwright
 ```
 
 **macOS:**
+
 ```
 ~/Library/Caches/ms-playwright
 ```

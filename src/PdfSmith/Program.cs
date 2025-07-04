@@ -26,8 +26,12 @@ using TinyHelpers.AspNetCore.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<TimeZoneTimeProvider>();
+
+builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -36,7 +40,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
-builder.Services.AddTimeZoneService();
 
 builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
 
@@ -91,17 +94,6 @@ builder.Services.AddRequestTimeouts();
 ValidatorOptions.Global.LanguageManager.Enabled = false;
 builder.Services.AddValidatorsFromAssemblyContaining<PdfGenerationRequestValidator>();
 
-builder.Services.AddOpenApi(options =>
-{
-    options.RemoveServerList();
-
-    options.AddSimpleAuthentication(builder.Configuration);
-    options.AddAcceptLanguageHeader();
-    options.AddDefaultProblemDetailsResponse();
-
-    options.AddOperationParameters();
-});
-
 builder.Services.AddOpenApiOperationParameters(options =>
 {
     options.Parameters.Add(new()
@@ -111,6 +103,17 @@ builder.Services.AddOpenApiOperationParameters(options =>
         Required = false,
         Schema = OpenApiSchemaHelper.CreateStringSchema()
     });
+});
+
+builder.Services.AddOpenApi(options =>
+{
+    options.RemoveServerList();
+
+    options.AddSimpleAuthentication(builder.Configuration);
+    options.AddAcceptLanguageHeader();
+    options.AddDefaultProblemDetailsResponse();
+
+    options.AddOperationParameters();
 });
 
 builder.Services.AddDefaultProblemDetails();
