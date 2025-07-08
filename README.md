@@ -10,6 +10,7 @@ A powerful REST API service that generates PDF documents from dynamic HTML templ
 - **API Key Authentication**: Secure access with subscription-based API keys
 - **Rate Limiting**: Configurable request limits per subscription
 - **Localization Support**: Multi-language template rendering
+- **Time Zone Support**: Correct handling and conversion of dates/times based on the user's specified time zone
 - **OpenAPI Documentation**: Built-in Swagger documentation
 
 ## 📋 Table of Contents
@@ -19,6 +20,7 @@ A powerful REST API service that generates PDF documents from dynamic HTML templ
 - [API Reference](#-api-reference)
 - [Template Engines](#-template-engines)
 - [PDF Configuration](#-pdf-configuration)
+- [Time Zone Support](#-time-zone-support)
 - [Usage Examples](#-usage-examples)
 - [Error Handling](#️-error-handling)
 - [Rate Limiting](#️-rate-limiting)
@@ -34,6 +36,7 @@ A powerful REST API service that generates PDF documents from dynamic HTML templ
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/marcominerva/PdfSmith.git
 cd PdfSmith
@@ -209,6 +212,16 @@ Configure margins using CSS units:
 
 Supported units: `mm`, `cm`, `in`, `px`, `pt`, `pc`
 
+## 🕒 Time Zone Support
+
+When generating PDFs that include dates and times, it is important to ensure that these values are represented in the correct time zone for the end user. By default, .NET's `DateTime.Now` returns the server's local time, which may not match the user's intended time zone. Similarly, when converting or displaying dates from the input model, the correct time zone context is essential to avoid confusion or errors in generated documents.
+
+**PdfSmith** allows clients to specify the desired time zone using the `x-time-zone` HTTP header (with an [IANA time zone identifier](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)). If this header is not provided, UTC is used by default. This ensures that:
+
+- All date and time values (such as those produced by `DateTime.Now` or parsed from the model) are converted and rendered according to the specified time zone.
+- Templates using date/time expressions (e.g., `@Model.Date`, `date.now`, or similar) will reflect the correct local time for the user, not just the server.
+- Consistency is maintained across different users and regions, especially for time-sensitive documents like invoices, reports, or logs.
+
 ## 💡 Usage Examples
 
 ### Basic PDF Generation
@@ -219,6 +232,7 @@ using PdfSmith.Shared.Models;
 
 var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.Add("x-api-key", "your-api-key");
+httpClient.DefaultRequestHeaders.Add("x-time-zone", "Europe/Rome")
 
 var request = new PdfGenerationRequest(
     template: "<html><body><h1>Hello @Model.Name!</h1></body></html>",
