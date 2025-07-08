@@ -5,6 +5,7 @@ using PdfSmith.Shared.Models;
 
 var httpClient = new HttpClient();
 httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-api-key", "Taggia42!");
+httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-time-zone", "Europe/Rome");
 httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("it-IT"));
 
 var productFaker = new Faker<Product>();
