@@ -44,9 +44,11 @@ builder.Services.AddTransient<IApiKeyValidator, SubscriptionValidator>();
 builder.Services.AddAzureSql<ApplicationDbContext>(builder.Configuration.GetConnectionString("SqlConnection"));
 
 builder.Services.AddRazorLightEngine();
+builder.Services.AddHandlebarsEngine();
 
 builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
+builder.Services.AddKeyedSingleton<ITemplateEngine, HandlebarsTemplateEngine>("handlebars");
 
 builder.Services.AddSingleton<IPdfGenerator, ChromiumPdfGenerator>();
 builder.Services.AddSingleton<IPdfService, PdfService>();
