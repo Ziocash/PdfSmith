@@ -72,10 +72,12 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
                 {
                     return dateTime.ToString(format, CultureInfo.CurrentCulture);
                 }
+
                 if (dateValue is DateTimeOffset dateTimeOffset)
                 {
                     return dateTimeOffset.ToString(format, CultureInfo.CurrentCulture);
                 }
+
                 if (DateTime.TryParse(dateValue.ToString(), out var parsedDate))
                 {
                     return parsedDate.ToString(format, CultureInfo.CurrentCulture);
@@ -83,19 +85,5 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             }
             return arguments.FirstOrDefault()?.ToString() ?? string.Empty;
         });
-
-        // Register helper for accessing DateTime.Now with timezone support
-        Handlebars.RegisterHelper("dateTimeNow", (context, arguments) =>
-        {
-            return timeProvider?.GetLocalNow().DateTime ?? DateTime.Now;
-        });
-
-        // Register helper for accessing DateTimeOffset.Now with timezone support
-        Handlebars.RegisterHelper("dateTimeOffsetNow", (context, arguments) =>
-        {
-            return timeProvider?.GetLocalNow() ?? DateTimeOffset.Now;
-        });
-
-
     }
 }

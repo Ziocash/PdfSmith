@@ -209,7 +209,6 @@ Handlebars provides logic-less templates with a designer-friendly syntax, ideal 
 **Built-in Helpers:**
 - `formatCurrency` - Formats decimal values as currency using current culture
 - `formatDate` - Formats dates with optional format string (default: "yyyy-MM-dd")
-- `multiply` - Multiplies two numeric values for calculations within templates
 - Support for DateTime.Now replacement with timezone-aware values
 
 ## 📄 PDF Configuration
@@ -423,7 +422,7 @@ var handlebarsTemplate = """
                 <td>{{Name}}</td>
                 <td>{{Quantity}}</td>
                 <td>{{formatCurrency Price}}</td>
-                <td>{{formatCurrency (multiply Quantity Price)}}</td>
+                <td>{{formatCurrency Price}}</td>
             </tr>
             {{/each}}
         </tbody>
