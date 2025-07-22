@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using PdfSmith.BusinessLayer.Exceptions;
 using PdfSmith.BusinessLayer.Services;
+using PdfSmith.BusinessLayer.Templating.Interfaces;
 using Scriban;
 using Scriban.Runtime;
 

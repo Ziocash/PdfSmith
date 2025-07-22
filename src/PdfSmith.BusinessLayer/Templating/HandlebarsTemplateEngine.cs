@@ -2,25 +2,24 @@ using System.Globalization;
 using HandlebarsDotNet;
 using PdfSmith.BusinessLayer.Exceptions;
 using PdfSmith.BusinessLayer.Services;
+using PdfSmith.BusinessLayer.Templating.Interfaces;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
 public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
 {
-    static HandlebarsTemplateEngine()
-    {
-        RegisterGlobalHelpers();
-    }
+    private readonly Lazy<IHandlebars> handlebarsInstance = new(() => CreateHandlebarsInstance(timeZoneTimeProvider));
 
     public Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         try
         {
-            var handlerbars = Handlebars.Compile(template);
+            var handlebars = handlebarsInstance.Value;
+            var compiledTemplate = handlebars.Compile(template);
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var result = handlerbars(new { Model = model });
+            var result = compiledTemplate(new { Model = model });
             return Task.FromResult(result);
         }
         catch (HandlebarsException ex)
@@ -33,12 +32,21 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
         }
     }
 
-    private static void RegisterGlobalHelpers()
+    private static IHandlebars CreateHandlebarsInstance(TimeZoneTimeProvider timeZoneTimeProvider)
     {
-        var handlebarsInstance = Handlebars.Create();
+        var handlebars = Handlebars.Create();
 
-        // Register helper for formatting currency
-        Handlebars.RegisterHelper("formatCurrency", (context, arguments) =>
+        // Register helper for formatting values.
+        handlebars.RegisterHelper("formatNumber", (context, arguments) =>
+            arguments.Length switch
+            {
+                0 => string.Empty,
+                >= 1 when decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value)
+                    => value.ToString(arguments[1].ToString(), CultureInfo.CurrentCulture),
+                _ => arguments[0]
+            });
+
+        handlebars.RegisterHelper("formatCurrency", (context, arguments) =>
             arguments.Length switch
             {
                 0 => string.Empty,
@@ -47,8 +55,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
                 _ => arguments.FirstOrDefault()?.ToString() ?? string.Empty
             });
 
-        // Register helper for formatting dates
-        Handlebars.RegisterHelper("formatDate", (context, arguments) =>
+        handlebars.RegisterHelper("formatDate", (context, arguments) =>
         {
             if (arguments.Length == 0)
             {
@@ -77,38 +84,66 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             return arguments.FirstOrDefault()?.ToString() ?? string.Empty;
         });
 
-        // Register helper for mathematical operations.
-        Handlebars.RegisterHelper("add", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 + value2 : 0m);
-        Handlebars.RegisterHelper("multiply", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 * value2 : 0m);
-        Handlebars.RegisterHelper("subtract", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 - value2 : 0m);
-        Handlebars.RegisterHelper("divide", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 / value2 : 0m);
-        Handlebars.RegisterHelper("round", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? Math.Round(value1, (int)value2, MidpointRounding.AwayFromZero) : 0m);
-
-        Handlebars.RegisterHelper("formatNumber", (context, arguments) =>
-            arguments.Length switch
-            {
-                0 => string.Empty,
-                >= 1 when decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value)
-                    => value.ToString(arguments[1].ToString(), CultureInfo.CurrentCulture),
-                _ => arguments[0]
-            });
-    }
-
-    private static bool GetValues(Arguments arguments, out decimal value1, out decimal value2)
-    {
-        value1 = value2 = 0;
-
-        if (arguments.Length < 2)
+        // Register helpers for getting current date/time in the correct timezone.
+        handlebars.RegisterHelper("now", (context, arguments) =>
         {
+            var format = arguments.ElementAtOrDefault(0)?.ToString() ??
+                $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
+
+            var now = timeZoneTimeProvider.GetLocalNow().DateTime;
+            return now.ToString(format, CultureInfo.CurrentCulture);
+        });
+
+        handlebars.RegisterHelper("utcNow", (context, arguments) =>
+        {
+            var format = arguments.ElementAtOrDefault(0)?.ToString() ??
+                $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
+
+            var now = timeZoneTimeProvider.GetUtcNow().DateTime;
+            return now.ToString(format, CultureInfo.CurrentCulture);
+        });
+
+        // Register helper for mathematical operations.
+        handlebars.RegisterHelper("add", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 + value2 : string.Empty);
+        handlebars.RegisterHelper("multiply", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 * value2 : string.Empty);
+        handlebars.RegisterHelper("subtract", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 - value2 : string.Empty);
+        handlebars.RegisterHelper("divide", (context, arguments) => GetValues(arguments, out var value1, out var value2) ? value1 / value2 : string.Empty);
+
+        handlebars.RegisterHelper("round", (context, arguments) =>
+        {
+            if (arguments.Length == 0 ||
+                !decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value1))
+            {
+                return string.Empty;
+            }
+
+            var decimals = 0;
+            if (arguments.Length >= 2)
+            {
+                int.TryParse(arguments[1].ToString(), CultureInfo.CurrentCulture, out decimals);
+            }
+
+            return Math.Round(value1, decimals, MidpointRounding.AwayFromZero);
+        });
+
+        return handlebars;
+
+        static bool GetValues(Arguments arguments, out decimal value1, out decimal value2)
+        {
+            value1 = value2 = 0;
+
+            if (arguments.Length < 2)
+            {
+                return false;
+            }
+
+            if (decimal.TryParse(arguments[0].ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out value1) &&
+                decimal.TryParse(arguments[1].ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out value2))
+            {
+                return true;
+            }
+
             return false;
         }
-
-        if (decimal.TryParse(arguments[0].ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out value1) &&
-            decimal.TryParse(arguments[1].ToString(), NumberStyles.Any, CultureInfo.CurrentCulture, out value2))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

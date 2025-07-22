@@ -213,12 +213,13 @@ Handlebars provides logic-less templates with a designer-friendly syntax, ideal 
 - `formatNumber` - Formats number values as string using the specified format and the current culture
 - `formatCurrency` - Formats decimal values as currency using current culture
 - `formatDate` - Formats dates with optional format string
+- `now` - Gets the current datetime with optional format string
+- `utcNow` - Gets the current UTC datetime with optional format string
 - `add` - Adds two numeric values for calculations within templates
 - `substract` - Substracts two numeric values for calculations within templates
 - `multiply` - Multiplies two numeric values for calculations within templates
 - `divide` - Divides two numeric values for calculations within templates
 - `round` - Rounds a numberic value to the specified number of decimals
-- Support for DateTime.Now replacement with timezone-aware values
 
 ## 📄 PDF Configuration
 
