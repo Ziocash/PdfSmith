@@ -22,11 +22,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
-    public static IServiceCollection AddHandlebarsEngine(this IServiceCollection services)
-    {
-        // Handlebars engine doesn't require additional configuration
-        // as it uses simple template compilation with built-in caching
-        return services;
-    }
 }

@@ -9,35 +9,29 @@ namespace PdfSmith.BusinessLayer.Templating;
 
 public partial class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
 {
-    private readonly IHandlebars _handlebars = Handlebars.Create();
+    private readonly IHandlebars handlebars = Handlebars.Create();
     private static readonly ConcurrentDictionary<string, HandlebarsTemplate<object, object>> TemplateCache = new();
-    private bool _helpersRegistered = false;
-    private readonly object _lockObject = new object();
+    private static TimeZoneTimeProvider? timeProvider;
+
+    static HandlebarsTemplateEngine()
+    {
+        RegisterGlobalHelpers();
+    }
 
     public async Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         try
         {
+            // Set the time provider for helpers
+            timeProvider = timeZoneTimeProvider;
+
             // Replace DateTime.Now with timezone-aware helper placeholders like other engines
             var sanitizedTemplate = DateTimeNowRegex.Replace(template, "{{dateTimeNow}}");
             sanitizedTemplate = DateTimeOffsetNowRegex.Replace(sanitizedTemplate, "{{dateTimeOffsetNow}}");
 
-            // Register global helpers for date/time and culture-aware formatting (only once)
-            if (!_helpersRegistered)
-            {
-                lock (_lockObject)
-                {
-                    if (!_helpersRegistered)
-                    {
-                        RegisterGlobalHelpers();
-                        _helpersRegistered = true;
-                    }
-                }
-            }
-
             // Get or compile template (with caching for performance)
             var compiledTemplate = TemplateCache.GetOrAdd(sanitizedTemplate, key =>
-                _handlebars.Compile(key)
+                handlebars.Compile(key)
             );
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -56,10 +50,12 @@ public partial class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeP
         }
     }
 
-    private void RegisterGlobalHelpers()
+    private static void RegisterGlobalHelpers()
     {
+        var handlebarsInstance = Handlebars.Create();
+
         // Register helper for formatting currency
-        _handlebars.RegisterHelper("formatCurrency", (context, arguments) =>
+        Handlebars.RegisterHelper("formatCurrency", (context, arguments) =>
         {
             if (arguments.Length > 0 && decimal.TryParse(arguments[0].ToString(), out var value))
             {
@@ -70,7 +66,7 @@ public partial class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeP
         });
 
         // Register helper for formatting dates
-        _handlebars.RegisterHelper("formatDate", (context, arguments) =>
+        Handlebars.RegisterHelper("formatDate", (context, arguments) =>
         {
             if (arguments.Length > 0)
             {
@@ -94,19 +90,19 @@ public partial class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeP
         });
 
         // Register helper for accessing DateTime.Now with timezone support
-        _handlebars.RegisterHelper("dateTimeNow", (context, arguments) =>
+        Handlebars.RegisterHelper("dateTimeNow", (context, arguments) =>
         {
-            return timeZoneTimeProvider.GetLocalNow().DateTime;
+            return timeProvider?.GetLocalNow().DateTime ?? DateTime.Now;
         });
 
         // Register helper for accessing DateTimeOffset.Now with timezone support
-        _handlebars.RegisterHelper("dateTimeOffsetNow", (context, arguments) =>
+        Handlebars.RegisterHelper("dateTimeOffsetNow", (context, arguments) =>
         {
-            return timeZoneTimeProvider.GetLocalNow();
+            return timeProvider?.GetLocalNow() ?? DateTimeOffset.Now;
         });
 
         // Register helper for mathematical operations
-        _handlebars.RegisterHelper("multiply", (context, arguments) =>
+        Handlebars.RegisterHelper("multiply", (context, arguments) =>
         {
             if (arguments.Length >= 2 && 
                 decimal.TryParse(arguments[0].ToString(), out var value1) &&
