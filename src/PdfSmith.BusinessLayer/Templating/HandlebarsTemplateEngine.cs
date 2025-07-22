@@ -10,7 +10,6 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
 {
     private readonly IHandlebars handlebars = Handlebars.Create();
     private static readonly ConcurrentDictionary<string, HandlebarsTemplate<object, object>> TemplateCache = new();
-    private static TimeZoneTimeProvider? timeProvider;
 
     static HandlebarsTemplateEngine()
     {
@@ -21,9 +20,6 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
     {
         try
         {
-            // Set the time provider for helpers
-            timeProvider = timeZoneTimeProvider;
-
             // Get or compile template (with caching for performance)
             var compiledTemplate = TemplateCache.GetOrAdd(template, key =>
                 handlebars.Compile(key)
@@ -52,7 +48,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
         // Register helper for formatting currency
         Handlebars.RegisterHelper("formatCurrency", (context, arguments) =>
         {
-            if (arguments.Length > 0 && decimal.TryParse(arguments[0].ToString(), out var value))
+            if (arguments.Length > 0 && decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value))
             {
                 // Use the current culture for formatting
                 return value.ToString("C", CultureInfo.CurrentCulture);
@@ -66,7 +62,8 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             if (arguments.Length > 0)
             {
                 var dateValue = arguments[0];
-                var format = arguments.Length > 1 ? arguments[1].ToString() : "yyyy-MM-dd";
+                var format = arguments.Length > 1 ? arguments[1].ToString() : 
+                    $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
                 
                 if (dateValue is DateTime dateTime)
                 {
@@ -78,7 +75,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
                     return dateTimeOffset.ToString(format, CultureInfo.CurrentCulture);
                 }
 
-                if (DateTime.TryParse(dateValue.ToString(), out var parsedDate))
+                if (DateTime.TryParse(dateValue.ToString(), CultureInfo.CurrentCulture, out var parsedDate))
                 {
                     return parsedDate.ToString(format, CultureInfo.CurrentCulture);
                 }
