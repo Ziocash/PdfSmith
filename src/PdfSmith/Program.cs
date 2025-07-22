@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net.Mime;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Localization;
@@ -121,6 +122,12 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
+
+if (builder.Environment.IsProduction())
+{
+    // Add OpenTelemetry and configure it to use Azure Monitor.
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
 
 var app = builder.Build();
 await ConfigureDatabaseAsync(app.Services);

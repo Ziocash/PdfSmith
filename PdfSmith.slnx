@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/PdfSmith.BusinessLayer/PdfSmith.BusinessLayer.csproj" />
+  <Project Path="src/PdfSmith.DataAccessLayer/PdfSmith.DataAccessLayer.csproj" />
+  <Project Path="src/PdfSmith.Shared/PdfSmith.Shared.csproj" />
+  <Project Path="src/PdfSmith/PdfSmith.csproj" />
+</Solution>
