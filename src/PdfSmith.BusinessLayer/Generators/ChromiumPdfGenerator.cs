@@ -1,4 +1,5 @@
 ﻿using Microsoft.Playwright;
+using PdfSmith.BusinessLayer.Generators.Interfaces;
 using PdfSmith.Shared.Enums;
 using PdfSmith.Shared.Models;
 using TinyHelpers.Extensions;

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using PdfSmith.BusinessLayer.Exceptions;
+using PdfSmith.BusinessLayer.Templating.Interfaces;
 using RazorLight;
 using RazorLight.Compilation;
 

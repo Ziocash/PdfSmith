@@ -1,6 +1,6 @@
 ﻿using PdfSmith.Shared.Models;
 
-namespace PdfSmith.BusinessLayer.Generators;
+namespace PdfSmith.BusinessLayer.Generators.Interfaces;
 
 public interface IPdfGenerator
 {

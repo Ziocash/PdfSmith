@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using OperationResults;
 using PdfSmith.BusinessLayer.Exceptions;
 using PdfSmith.BusinessLayer.Extensions;
-using PdfSmith.BusinessLayer.Generators;
+using PdfSmith.BusinessLayer.Generators.Interfaces;
 using PdfSmith.BusinessLayer.Services.Interfaces;
-using PdfSmith.BusinessLayer.Templating;
+using PdfSmith.BusinessLayer.Templating.Interfaces;
 using PdfSmith.Shared.Models;
 using TinyHelpers.Extensions;
 

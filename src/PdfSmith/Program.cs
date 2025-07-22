@@ -12,9 +12,11 @@ using OperationResults.AspNetCore.Http;
 using PdfSmith.BusinessLayer.Authentication;
 using PdfSmith.BusinessLayer.Extensions;
 using PdfSmith.BusinessLayer.Generators;
+using PdfSmith.BusinessLayer.Generators.Interfaces;
 using PdfSmith.BusinessLayer.Services;
 using PdfSmith.BusinessLayer.Services.Interfaces;
 using PdfSmith.BusinessLayer.Templating;
+using PdfSmith.BusinessLayer.Templating.Interfaces;
 using PdfSmith.BusinessLayer.Validations;
 using PdfSmith.DataAccessLayer;
 using PdfSmith.Shared.Models;
@@ -47,6 +49,7 @@ builder.Services.AddRazorLightEngine();
 
 builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scriban");
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
+builder.Services.AddKeyedSingleton<ITemplateEngine, HandlebarsTemplateEngine>("handlebars");
 
 builder.Services.AddSingleton<IPdfGenerator, ChromiumPdfGenerator>();
 builder.Services.AddSingleton<IPdfService, PdfService>();
@@ -158,7 +161,7 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
 })
 .WithName("GeneratePdf")
 .WithSummary("Dynamically generates a PDF document using a provided template and model")
-.WithDescription("This endpoint accepts a template (as a string) and a model (as a JSON object) to generate a PDF document on the fly. The template can use either the Razor or Scriban engine, specified via the 'templateEngine' property. The model is injected into the template for dynamic content rendering. Additional PDF options and a custom file name can be provided. The result is a PDF file generated according to the submitted template and data.")
+.WithDescription("This endpoint accepts a template (as a string) and a model (as a JSON object) to generate a PDF document on the fly. The template can use the Razor, Scriban, or Handlebars engine, specified via the 'templateEngine' property. The model is injected into the template for dynamic content rendering. Additional PDF options and a custom file name can be provided. The result is a PDF file generated according to the submitted template and data.")
 .WithValidation<PdfGenerationRequest>()
 .Produces(StatusCodes.Status200OK, contentType: MediaTypeNames.Application.Pdf)
 .RequireAuthorization()
