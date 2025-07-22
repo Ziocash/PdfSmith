@@ -85,6 +85,7 @@ x-api-key: your-api-key-here
 ### Default Administrator Account
 
 A default administrator account is created automatically with the following configuration:
+
 - Username: Set via `AppSettings:AdministratorUserName`
 - API Key: Set via `AppSettings:AdministratorApiKey`
 - Default limits: 10 requests per minute
@@ -128,6 +129,7 @@ A default administrator account is created automatically with the following conf
 ```
 
 **Response:**
+
 - **Content-Type:** `application/pdf`
 - **Content-Disposition:** `attachment; filename="document.pdf"`
 - **Body:** PDF file binary data
@@ -194,21 +196,28 @@ Handlebars provides logic-less templates with a designer-friendly syntax, ideal 
 ```html
 <html>
 <body>
-    <h1>Hello {{Name}}!</h1>
-    <p>Order Date: {{formatDate Date "dd/MM/yyyy"}}</p>
+    <h1>Hello {{Model.Name}}!</h1>
+    <p>Order Date: {{formatDate Model.Date "dd/MM/yyyy"}}</p>
     <ul>
     {{#each Items}}
-        <li>{{Name}} - {{formatCurrency Price}}</li>
+        <li>{{Name}} - {{formatCurrency Model.Price}}</li>
     {{/each}}
     </ul>
-    <p>Total: {{formatCurrency Total}}</p>
+    <p>Total: {{formatCurrency Model.Total}}</p>
 </body>
 </html>
 ```
 
 **Built-in Helpers:**
+
+- `formatNumber` - Formats number values as string using the specified format and the current culture
 - `formatCurrency` - Formats decimal values as currency using current culture
-- `formatDate` - Formats dates with optional format string (default: "yyyy-MM-dd")
+- `formatDate` - Formats dates with optional format string
+- `add` - Adds two numeric values for calculations within templates
+- `substract` - Substracts two numeric values for calculations within templates
+- `multiply` - Multiplies two numeric values for calculations within templates
+- `divide` - Divides two numeric values for calculations within templates
+- `round` - Rounds a numberic value to the specified number of decimals
 - Support for DateTime.Now replacement with timezone-aware values
 
 ## 📄 PDF Configuration
@@ -311,7 +320,7 @@ var order = new
     Total = 109.97m
 };
 
-var htmlTemplate = """
+var razorTemplate = """
 <html>
 <head>
     <style>
@@ -365,7 +374,7 @@ var htmlTemplate = """
 </html>
 """;
 
-var request = new PdfGenerationRequest(htmlTemplate, order, templateEngine: "razor");
+var request = new PdfGenerationRequest(razorTemplate, order, templateEngine: "razor");
 ```
 
 ### Handlebars Template Example
@@ -399,12 +408,12 @@ var handlebarsTemplate = """
 <body>
     <div class="header">
         <h1>Invoice</h1>
-        <p>Invoice #{{InvoiceNumber}}</p>
+        <p>Invoice #{{Model.InvoiceNumber}}</p>
     </div>
     
     <div class="invoice-details">
-        <p><strong>Customer:</strong> {{CustomerName}}</p>
-        <p><strong>Date:</strong> {{formatDate Date "dd/MM/yyyy"}}</p>
+        <p><strong>Customer:</strong> {{Model.CustomerName}}</p>
+        <p><strong>Date:</strong> {{formatDate Model.Date "dd/MM/yyyy"}}</p>
     </div>
     
     <table>
@@ -417,19 +426,19 @@ var handlebarsTemplate = """
             </tr>
         </thead>
         <tbody>
-            {{#each Items}}
+            {{#each Model.Items}}
             <tr>
                 <td>{{Name}}</td>
                 <td>{{Quantity}}</td>
                 <td>{{formatCurrency Price}}</td>
-                <td>{{formatCurrency Price}}</td>
+                <td>{{formatCurrency (multiply Price Quantity)}}</td>
             </tr>
             {{/each}}
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" class="total">Total:</td>
-                <td class="total">{{formatCurrency Total}}</td>
+                <td class="total">{{formatCurrency Model.Total}}</td>
             </tr>
         </tfoot>
     </table>
