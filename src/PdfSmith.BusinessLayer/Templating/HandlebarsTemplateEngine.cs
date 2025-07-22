@@ -61,11 +61,11 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
         {
             if (arguments.Length == 0)
             {
-                return arguments.FirstOrDefault()?.ToString() ?? string.Empty;
+                return string.Empty;
             }
 
             var dateValue = arguments[0];
-            var format = arguments.Length > 1 ? arguments[1].ToString() : 
+            var format = arguments.ElementAtOrDefault(1)?.ToString() ?? 
                 $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
             
             if (dateValue is DateTime dateTime)
