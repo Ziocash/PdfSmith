@@ -142,7 +142,7 @@ PdfSmith supports three powerful template engines:
 
 Razor provides C#-based templating with full programming capabilities.
 
-**Key:** `"razor"`
+**Key:** `razor`
 
 **Example:**
 
@@ -166,7 +166,7 @@ Razor provides C#-based templating with full programming capabilities.
 
 Scriban is a fast, powerful, safe, and lightweight text templating language.
 
-**Key:** `"scriban"`
+**Key:** `scriban`
 
 **Example:**
 
@@ -189,7 +189,7 @@ Scriban is a fast, powerful, safe, and lightweight text templating language.
 
 Handlebars provides logic-less templates with a designer-friendly syntax, ideal for collaborative development workflows.
 
-**Key:** `"handlebars"`
+**Key:** `handlebars`
 
 **Example:**
 
@@ -305,7 +305,7 @@ var request = new PdfGenerationRequest(
 );
 ```
 
-### Invoice Generation Example
+### Invoice Generation Example with Razor Template
 
 ```csharp
 var order = new
