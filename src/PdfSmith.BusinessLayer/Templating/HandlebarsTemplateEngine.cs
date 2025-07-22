@@ -41,8 +41,10 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             arguments.Length switch
             {
                 0 => string.Empty,
-                >= 1 when decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value)
+                >= 2 when decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value)
                     => value.ToString(arguments[1].ToString(), CultureInfo.CurrentCulture),
+                >= 1 when decimal.TryParse(arguments[0].ToString(), CultureInfo.CurrentCulture, out var value)
+                    => value.ToString(CultureInfo.CurrentCulture),
                 _ => arguments[0]
             });
 

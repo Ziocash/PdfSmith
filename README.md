@@ -200,7 +200,7 @@ Handlebars provides logic-less templates with a designer-friendly syntax, ideal 
     <p>Order Date: {{formatDate Model.Date "dd/MM/yyyy"}}</p>
     <ul>
     {{#each Items}}
-        <li>{{Name}} - {{formatCurrency Model.Price}}</li>
+        <li>{{Name}} - {{formatCurrency Price}}</li>
     {{/each}}
     </ul>
     <p>Total: {{formatCurrency Model.Total}}</p>
@@ -216,7 +216,7 @@ Handlebars provides logic-less templates with a designer-friendly syntax, ideal 
 - `now` - Gets the current datetime with optional format string
 - `utcNow` - Gets the current UTC datetime with optional format string
 - `add` - Adds two numeric values for calculations within templates
-- `substract` - Substracts two numeric values for calculations within templates
+- `subtract` - Subtracts two numeric values for calculations within templates
 - `multiply` - Multiplies two numeric values for calculations within templates
 - `divide` - Divides two numeric values for calculations within templates
 - `round` - Rounds a numberic value to the specified number of decimals
