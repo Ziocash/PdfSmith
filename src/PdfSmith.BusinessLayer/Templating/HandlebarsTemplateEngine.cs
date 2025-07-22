@@ -59,27 +59,30 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
         // Register helper for formatting dates
         Handlebars.RegisterHelper("formatDate", (context, arguments) =>
         {
-            if (arguments.Length > 0)
+            if (arguments.Length == 0)
             {
-                var dateValue = arguments[0];
-                var format = arguments.Length > 1 ? arguments[1].ToString() : 
-                    $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
-                
-                if (dateValue is DateTime dateTime)
-                {
-                    return dateTime.ToString(format, CultureInfo.CurrentCulture);
-                }
-
-                if (dateValue is DateTimeOffset dateTimeOffset)
-                {
-                    return dateTimeOffset.ToString(format, CultureInfo.CurrentCulture);
-                }
-
-                if (DateTime.TryParse(dateValue.ToString(), CultureInfo.CurrentCulture, out var parsedDate))
-                {
-                    return parsedDate.ToString(format, CultureInfo.CurrentCulture);
-                }
+                return arguments.FirstOrDefault()?.ToString() ?? string.Empty;
             }
+
+            var dateValue = arguments[0];
+            var format = arguments.Length > 1 ? arguments[1].ToString() : 
+                $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
+            
+            if (dateValue is DateTime dateTime)
+            {
+                return dateTime.ToString(format, CultureInfo.CurrentCulture);
+            }
+
+            if (dateValue is DateTimeOffset dateTimeOffset)
+            {
+                return dateTimeOffset.ToString(format, CultureInfo.CurrentCulture);
+            }
+
+            if (DateTime.TryParse(dateValue.ToString(), CultureInfo.CurrentCulture, out var parsedDate))
+            {
+                return parsedDate.ToString(format, CultureInfo.CurrentCulture);
+            }
+
             return arguments.FirstOrDefault()?.ToString() ?? string.Empty;
         });
     }
