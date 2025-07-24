@@ -129,7 +129,7 @@ builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
 builder.Services.AddSingleton<PlaywrightHealthCheck>();
-builder.Services.AddHostedService<PlaywrightBackgroundService>();
+builder.Services.AddHostedService<InstallPlaywrightBackgroundService>();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>("Database", tags: ["ready"])

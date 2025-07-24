@@ -3,7 +3,7 @@ using PdfSmith.HealthChecks;
 
 namespace PdfSmith.BackgroundServices;
 
-public class PlaywrightBackgroundService(ILogger<PlaywrightBackgroundService> logger, PlaywrightHealthCheck playwrightHealthCheck) : BackgroundService
+public class InstallPlaywrightBackgroundService(ILogger<InstallPlaywrightBackgroundService> logger, PlaywrightHealthCheck playwrightHealthCheck) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
