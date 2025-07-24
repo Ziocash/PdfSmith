@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace PdfSmith.HealthChecks;
 
@@ -12,6 +13,6 @@ public class PlaywrightHealthCheck : IHealthCheck
             PlaywrightStatus.Unknown => Task.FromResult(HealthCheckResult.Unhealthy("Playwright isn't ready yet.")),
             PlaywrightStatus.Error => Task.FromResult(HealthCheckResult.Unhealthy("Error during Playwright installation.")),
             PlaywrightStatus.Installed => Task.FromResult(HealthCheckResult.Healthy()),
-            _ => throw new NotImplementedException()
+            _ => throw new UnreachableException()
         };
 }

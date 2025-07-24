@@ -17,17 +17,17 @@ public class InstallPlaywrightBackgroundService(ILogger<InstallPlaywrightBackgro
             }
             catch (PlaywrightException playwrightException)
             {
-                logger.LogError(playwrightException, "Error while installing chromium");
+                logger.LogError(playwrightException, "Error while installing Chromium");
                 return -1;
             }
         });
 
-        if (returnCode != 0)
+        var playwrightStatus = returnCode switch
         {
-            playwrightHealthCheck.Status = PlaywrightStatus.Error;
-            return;
-        }
+            0 => PlaywrightStatus.Installed,
+            _ => PlaywrightStatus.Error
+        };
 
-        playwrightHealthCheck.Status = PlaywrightStatus.Installed;
+        playwrightHealthCheck.Status = playwrightStatus;
     }
 }
