@@ -10,7 +10,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
 {
     private readonly Lazy<IHandlebars> handlebarsInstance = new(() => CreateHandlebarsInstance(timeZoneTimeProvider));
 
-    public Task<string> RenderAsync(string template, object model, CultureInfo culture, CancellationToken cancellationToken = default)
+    public Task<string> RenderAsync(string template, object? model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         try
         {

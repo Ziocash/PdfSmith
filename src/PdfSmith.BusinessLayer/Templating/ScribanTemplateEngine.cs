@@ -10,9 +10,9 @@ namespace PdfSmith.BusinessLayer.Templating;
 
 public partial class ScribanTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
 {
-    private const string DateTimeZonePlaceholder = "date_time_zone";
+    private const string DateTimeZonePlaceholder = "datetime_withzone";
 
-    public async Task<string> RenderAsync(string text, object model, CultureInfo culture, CancellationToken cancellationToken = default)
+    public async Task<string> RenderAsync(string text, object? model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
         var sanitizedText = DateNowRegex.Replace(text, DateTimeZonePlaceholder);
 
