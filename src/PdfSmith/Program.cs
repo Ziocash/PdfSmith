@@ -13,6 +13,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using MinimalHelpers.FluentValidation;
 using OperationResults.AspNetCore.Http;
+using PdfSmith.BackgroundServices;
 using PdfSmith.BusinessLayer.Authentication;
 using PdfSmith.BusinessLayer.Extensions;
 using PdfSmith.BusinessLayer.Generators;
@@ -127,9 +128,12 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
+builder.Services.AddSingleton<PlaywrightHealthCheck>();
+builder.Services.AddHostedService<PlaywrightBackgroundService>();
+
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>("Database", tags: ["ready"])
-    .AddCheck<PlaywriteHealthCheck>("Playwright", tags: ["live"]);
+    .AddCheck<PlaywrightHealthCheck>("Playwright", tags: ["live"]);
 
 if (builder.Environment.IsProduction())
 {
@@ -198,10 +202,6 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
     Timeout = TimeSpan.FromSeconds(30),
     TimeoutStatusCode = StatusCodes.Status408RequestTimeout
 });
-
-// On Windows, it is installed in %USERPROFILE%\AppData\Local\ms-playwright by default
-// We can use PLAYWRIGHT_BROWSERS_PATH environment variable to change the default location
-_ = Task.Run(() => Microsoft.Playwright.Program.Main(["install", "chromium"]));
 
 app.Run();
 
