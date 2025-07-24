@@ -133,7 +133,7 @@ builder.Services.AddHostedService<InstallPlaywrightBackgroundService>();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>("Database", tags: ["ready"])
-    .AddCheck<PlaywrightHealthCheck>("Playwright", tags: ["live"]);
+    .AddCheck<PlaywrightHealthCheck>("Playwright", tags: ["ready"]);
 
 if (builder.Environment.IsProduction())
 {
@@ -179,7 +179,7 @@ app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 
 app.MapHealthChecks("/healthz/live", new HealthCheckOptions
 {
-    Predicate = healthCheck => healthCheck.Tags.Contains("live"),
+    Predicate = _ => false,
     ResponseWriter = HealthChecksResponseWriter()
 });
 
