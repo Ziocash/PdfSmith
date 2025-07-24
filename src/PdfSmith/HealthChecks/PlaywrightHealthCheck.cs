@@ -4,17 +4,14 @@ namespace PdfSmith.HealthChecks;
 
 public class PlaywrightHealthCheck : IHealthCheck
 {
-    public bool IsPlaywrightReady { get; set; } = false;
-    public string? ErrorMessage { get; set; }
+    public PlaywrightStatus Status { get; set; } = PlaywrightStatus.Unknown;
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
-    {
-        if (IsPlaywrightReady)
+        => Status switch
         {
-            return Task.FromResult(HealthCheckResult.Healthy());
-        }
-
-        var unhealthyMessage = ErrorMessage ?? "Playwright isn't ready yet.";
-        return Task.FromResult(HealthCheckResult.Unhealthy(unhealthyMessage));
-    }
+            PlaywrightStatus.Unknown => Task.FromResult(HealthCheckResult.Unhealthy("Playwright isn't ready yet.")),
+            PlaywrightStatus.Error => Task.FromResult(HealthCheckResult.Unhealthy("Error during Playwright installation.")),
+            PlaywrightStatus.Installed => Task.FromResult(HealthCheckResult.Healthy()),
+            _ => throw new NotImplementedException()
+        };
 }

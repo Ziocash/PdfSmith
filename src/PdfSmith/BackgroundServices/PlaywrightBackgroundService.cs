@@ -9,25 +9,25 @@ public class PlaywrightBackgroundService(ILogger<PlaywrightBackgroundService> lo
     {
         // On Windows, it is installed in %USERPROFILE%\AppData\Local\ms-playwright by default
         // We can use PLAYWRIGHT_BROWSERS_PATH environment variable to change the default location
-        var (returnCode, errorMessage) = await Task.Run(() =>
+        var returnCode = await Task.Run(() =>
         {
             try
             {
-                return (Microsoft.Playwright.Program.Main(["install", "chromium"]), (string?)null);
+                return Microsoft.Playwright.Program.Main(["install", "chromium"]);
             }
             catch (PlaywrightException playwrightException)
             {
                 logger.LogError(playwrightException, "Error while installing chromium");
-                return (1, "Error while initializing Playwright");
+                return -1;
             }
         });
 
         if (returnCode != 0)
         {
-            playwrightHealthCheck.ErrorMessage = errorMessage;
+            playwrightHealthCheck.Status = PlaywrightStatus.Error;
             return;
         }
 
-        playwrightHealthCheck.IsPlaywrightReady = true;
+        playwrightHealthCheck.Status = PlaywrightStatus.Installed;
     }
 }
