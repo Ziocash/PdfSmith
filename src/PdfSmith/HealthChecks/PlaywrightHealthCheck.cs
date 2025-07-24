@@ -5,6 +5,7 @@ namespace PdfSmith.HealthChecks;
 public class PlaywrightHealthCheck : IHealthCheck
 {
     public bool IsPlaywrightReady { get; set; } = false;
+    public string? ErrorMessage { get; set; }
 
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
@@ -13,6 +14,7 @@ public class PlaywrightHealthCheck : IHealthCheck
             return Task.FromResult(HealthCheckResult.Healthy());
         }
 
-        return Task.FromResult(HealthCheckResult.Unhealthy("Playwright isn't ready yet."));
+        var unhealthyMessage = ErrorMessage ?? "Playwright isn't ready yet.";
+        return Task.FromResult(HealthCheckResult.Unhealthy(unhealthyMessage));
     }
 }
