@@ -27,7 +27,7 @@ public static class JsonDocumentExtensions
             return element.EnumerateArray().Select(e => ConvertValue(e, timeZoneInfo)).ToList();
         }
 
-        // For all other cases (including Null), delegate to ConvertValue which handles them properly
+        // For all other cases (including Null), delegate to ConvertValue which handles them properly.
         return ConvertValue(element, timeZoneInfo);
     }
 
