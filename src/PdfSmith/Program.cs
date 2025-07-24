@@ -171,15 +171,15 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseRequestTimeouts();
 
-app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
-{
-    Predicate = healthCheck => healthCheck.Tags.Contains("ready"),
-    ResponseWriter = HealthChecksResponseWriter()
-});
-
 app.MapHealthChecks("/healthz/live", new HealthCheckOptions
 {
     Predicate = _ => false,
+    ResponseWriter = HealthChecksResponseWriter()
+});
+
+app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("ready"),
     ResponseWriter = HealthChecksResponseWriter()
 });
 
