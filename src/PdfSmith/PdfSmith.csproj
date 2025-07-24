@@ -15,6 +15,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.7" />
         <PackageReference Include="MinimalHelpers.FluentValidation" Version="1.1.4" />
         <PackageReference Include="OperationResultTools.AspNetCore.Http" Version="1.0.28" />
         <PackageReference Include="SimpleAuthenticationTools" Version="3.0.13" />

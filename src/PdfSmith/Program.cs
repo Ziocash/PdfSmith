@@ -1,12 +1,15 @@
 using System.Globalization;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using MinimalHelpers.FluentValidation;
 using OperationResults.AspNetCore.Http;
@@ -20,6 +23,7 @@ using PdfSmith.BusinessLayer.Templating;
 using PdfSmith.BusinessLayer.Templating.Interfaces;
 using PdfSmith.BusinessLayer.Validations;
 using PdfSmith.DataAccessLayer;
+using PdfSmith.HealthChecks;
 using PdfSmith.Shared.Models;
 using SimpleAuthentication;
 using SimpleAuthentication.ApiKey;
@@ -123,6 +127,10 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddDefaultProblemDetails();
 builder.Services.AddDefaultExceptionHandler();
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("Database", tags: ["ready"])
+    .AddCheck<PlaywriteHealthCheck>("Playwright", tags: ["live"]);
+
 if (builder.Environment.IsProduction())
 {
     // Add OpenTelemetry and configure it to use Azure Monitor.
@@ -159,6 +167,18 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.UseRequestTimeouts();
 
+app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("ready"),
+    ResponseWriter = HealthChecksResponseWriter()
+});
+
+app.MapHealthChecks("/healthz/live", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("live"),
+    ResponseWriter = HealthChecksResponseWriter()
+});
+
 app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfService, HttpContext httpContext) =>
 {
     var result = await pdfService.GeneratePdfAsync(request, httpContext.RequestAborted);
@@ -181,7 +201,7 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
 
 // On Windows, it is installed in %USERPROFILE%\AppData\Local\ms-playwright by default
 // We can use PLAYWRIGHT_BROWSERS_PATH environment variable to change the default location
-Microsoft.Playwright.Program.Main(["install", "chromium"]);
+_ = Task.Run(() => Microsoft.Playwright.Program.Main(["install", "chromium"]));
 
 app.Run();
 
@@ -192,3 +212,24 @@ static async Task ConfigureDatabaseAsync(IServiceProvider serviceProvider)
 
     await dbContext.Database.MigrateAsync();
 }
+
+static Func<HttpContext, HealthReport, Task> HealthChecksResponseWriter()
+    => async (context, report) =>
+    {
+        var result = JsonSerializer.Serialize(
+            new
+            {
+                status = report.Status.ToString(),
+                duration = report.TotalDuration.TotalMilliseconds,
+                details = report.Entries.Select(entry => new
+                {
+                    service = entry.Key,
+                    status = entry.Value.Status.ToString(),
+                    description = entry.Value.Description,
+                    exception = entry.Value.Exception?.Message,
+                })
+            });
+
+        context.Response.ContentType = MediaTypeNames.Application.Json;
+        await context.Response.WriteAsync(result);
+    };
