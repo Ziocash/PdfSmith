@@ -3,7 +3,7 @@ using PdfSmith.HealthChecks;
 
 namespace PdfSmith.BackgroundServices;
 
-public class InstallPlaywrightBackgroundService(ILogger<InstallPlaywrightBackgroundService> logger, PlaywrightHealthCheck playwrightHealthCheck) : BackgroundService
+public class InstallPlaywrightBackgroundService(PlaywrightHealthCheck playwrightHealthCheck, ILogger<InstallPlaywrightBackgroundService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -15,12 +15,12 @@ public class InstallPlaywrightBackgroundService(ILogger<InstallPlaywrightBackgro
             {
                 return Microsoft.Playwright.Program.Main(["install", "chromium"]);
             }
-            catch (PlaywrightException playwrightException)
+            catch (PlaywrightException ex)
             {
-                logger.LogError(playwrightException, "Error while installing Chromium");
+                logger.LogError(ex, "Error while installing Chromium");
                 return -1;
             }
-        });
+        }, stoppingToken);
 
         var playwrightStatus = returnCode switch
         {
