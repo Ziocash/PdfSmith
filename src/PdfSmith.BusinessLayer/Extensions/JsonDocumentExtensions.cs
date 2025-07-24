@@ -7,10 +7,10 @@ namespace PdfSmith.BusinessLayer.Extensions;
 
 public static class JsonDocumentExtensions
 {
-    public static object ToExpandoObject(this JsonDocument document, TimeZoneInfo? timeZoneInfo)
+    public static object? ToExpandoObject(this JsonDocument document, TimeZoneInfo? timeZoneInfo)
         => ConvertElement(document.RootElement, timeZoneInfo);
 
-    private static object ConvertElement(JsonElement element, TimeZoneInfo? timeZoneInfo)
+    private static object? ConvertElement(JsonElement element, TimeZoneInfo? timeZoneInfo)
     {
         if (element.ValueKind == JsonValueKind.Object)
         {
@@ -27,7 +27,8 @@ public static class JsonDocumentExtensions
             return element.EnumerateArray().Select(e => ConvertValue(e, timeZoneInfo)).ToList();
         }
 
-        throw new InvalidOperationException($"Unsupported JSON ValueKind: {element.ValueKind}");
+        // For all other cases (including Null), delegate to ConvertValue which handles them properly
+        return ConvertValue(element, timeZoneInfo);
     }
 
     private static object? ConvertValue(JsonElement element, TimeZoneInfo? timeZoneInfo)
