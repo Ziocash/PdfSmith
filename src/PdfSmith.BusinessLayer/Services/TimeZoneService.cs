@@ -21,7 +21,7 @@ public class TimeZoneService(IHttpContextAccessor httpContextAccessor) : ITimeZo
 
     public string? GetTimeZoneHeaderValue()
     {
-        if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(HeaderKey, out var timeZone) ?? false)
+        if (httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(HeaderKey, out var timeZone) == true)
         {
             return timeZone.ToString();
         }

@@ -57,6 +57,7 @@ builder.Services.AddKeyedSingleton<ITemplateEngine, ScribanTemplateEngine>("scri
 builder.Services.AddKeyedSingleton<ITemplateEngine, RazorTemplateEngine>("razor");
 builder.Services.AddKeyedSingleton<ITemplateEngine, HandlebarsTemplateEngine>("handlebars");
 
+builder.Services.AddSingleton<ITemplateService, TemplateService>();
 builder.Services.AddSingleton<IPdfGenerator, ChromiumPdfGenerator>();
 builder.Services.AddSingleton<IPdfService, PdfService>();
 
@@ -183,6 +184,25 @@ app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
     ResponseWriter = HealthChecksResponseWriter()
 });
 
+app.MapPost("/api/template", async (TemplateGenerationRequest request, ITemplateService templateService, HttpContext httpContext) =>
+{
+    var result = await templateService.CreateAsync(request, httpContext.RequestAborted);
+
+    var response = httpContext.CreateResponse(result);
+    return response;
+})
+.WithName("CreateTemplate")
+.WithSummary("Renders a template to HTML using the specified template engine")
+.WithDescription("Accepts a template (string) and a model (JSON) and returns the rendered HTML as a string. Supports Razor, Scriban, and Handlebars via the 'templateEngine' property. The template is rendered using the request culture and optional time zone header. Useful to preview or validate templates before generating a PDF.")
+.WithValidation<TemplateGenerationRequest>()
+.Produces<TemplateResponse>(StatusCodes.Status200OK)
+.RequireAuthorization()
+.WithRequestTimeout(new RequestTimeoutPolicy
+{
+    Timeout = TimeSpan.FromSeconds(5),
+    TimeoutStatusCode = StatusCodes.Status408RequestTimeout
+});
+
 app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfService, HttpContext httpContext) =>
 {
     var result = await pdfService.GeneratePdfAsync(request, httpContext.RequestAborted);
@@ -191,8 +211,8 @@ app.MapPost("/api/pdf", async (PdfGenerationRequest request, IPdfService pdfServ
     return response;
 })
 .WithName("GeneratePdf")
-.WithSummary("Dynamically generates a PDF document using a provided template and model")
-.WithDescription("This endpoint accepts a template (as a string) and a model (as a JSON object) to generate a PDF document on the fly. The template can use the Razor, Scriban, or Handlebars engine, specified via the 'templateEngine' property. The model is injected into the template for dynamic content rendering. Additional PDF options and a custom file name can be provided. The result is a PDF file generated according to the submitted template and data.")
+.WithSummary("Renders a template and generates a PDF using the specified template engine")
+.WithDescription("Accepts a template (string) and a model (JSON) and returns a generated PDF document. Supports Razor, Scriban, and Handlebars via the 'templateEngine' property. The model is injected into the template for dynamic content rendering. Additional PDF options and a custom file name can be provided. The template is rendered using the request culture and optional time zone header.")
 .WithValidation<PdfGenerationRequest>()
 .Produces(StatusCodes.Status200OK, contentType: MediaTypeNames.Application.Pdf)
 .RequireAuthorization()

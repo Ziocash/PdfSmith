@@ -1,57 +1,24 @@
-﻿using System.Globalization;
-using System.Net.Mime;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Net.Mime;
 using OperationResults;
-using PdfSmith.BusinessLayer.Exceptions;
-using PdfSmith.BusinessLayer.Extensions;
 using PdfSmith.BusinessLayer.Generators.Interfaces;
 using PdfSmith.BusinessLayer.Services.Interfaces;
-using PdfSmith.BusinessLayer.Templating.Interfaces;
 using PdfSmith.Shared.Models;
 using TinyHelpers.Extensions;
 
 namespace PdfSmith.BusinessLayer.Services;
 
-public class PdfService(IServiceProvider serviceProvider, IPdfGenerator pdfGenerator, ITimeZoneService timeZoneService) : IPdfService
+public class PdfService(ITemplateService templateService, IPdfGenerator pdfGenerator) : IPdfService
 {
     public async Task<Result<StreamFileContent>> GeneratePdfAsync(PdfGenerationRequest request, CancellationToken cancellationToken)
     {
-        var templateEngine = serviceProvider.GetKeyedService<ITemplateEngine>(request.TemplateEngine!.ToLowerInvariant().Trim());
+        var templateResponse = await templateService.CreateAsync(request, cancellationToken);
 
-        if (templateEngine is null)
+        if (!templateResponse.Success)
         {
-            return Result.Fail(FailureReasons.ClientError, "Unable to render the template", $"The template engine '{request.TemplateEngine}' has not been registered");
+            return Result.Fail(templateResponse.FailureReason, templateResponse.ErrorMessage!, templateResponse.ErrorDetail!, templateResponse.ValidationErrors);
         }
 
-        var timeZoneInfo = timeZoneService.GetTimeZone();
-
-        if (timeZoneInfo is null)
-        {
-            var timeZoneId = timeZoneService.GetTimeZoneHeaderValue();
-            if (timeZoneId is not null)
-            {
-                // If timeZoneInfo is null, but timeZoneId has a value, it means that the time zone specified in the header is invalid.
-                return Result.Fail(FailureReasons.ClientError, "Unable to find the time zone", $"The time zone '{timeZoneId}' is invalid or is not available on the system");
-            }
-        }
-
-        string? content;
-        try
-        {
-            var model = request.Model?.ToExpandoObject(timeZoneInfo);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            content = await templateEngine.RenderAsync(request.Template, model, CultureInfo.CurrentCulture, cancellationToken);
-
-            cancellationToken.ThrowIfCancellationRequested();
-        }
-        catch (TemplateEngineException ex)
-        {
-            return Result.Fail(FailureReasons.ClientError, "Unable to render the template", ex.Message);
-        }
-
-        var output = await pdfGenerator.CreateAsync(content, request.Options, cancellationToken);
+        var output = await pdfGenerator.CreateAsync(templateResponse.Content.Result, request.Options, cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
