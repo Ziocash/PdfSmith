@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../src/PdfSmith.Shared/PdfSmith.Shared.csproj" />
+  <Project Path="PdfSmith.Client/PdfSmith.Client.csproj" />
+</Solution>
