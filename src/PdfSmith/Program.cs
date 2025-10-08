@@ -37,7 +37,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton<TimeZoneTimeProvider>();
+builder.Services.AddSingleton<RequestTimeProvider>();
 
 builder.Services.AddSingleton<ITimeZoneService, TimeZoneService>();
 

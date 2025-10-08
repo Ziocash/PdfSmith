@@ -6,9 +6,9 @@ using PdfSmith.BusinessLayer.Templating.Interfaces;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
-public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
+public class HandlebarsTemplateEngine(RequestTimeProvider requestTimeProvider) : ITemplateEngine
 {
-    private readonly Lazy<IHandlebars> handlebarsInstance = new(() => CreateHandlebarsInstance(timeZoneTimeProvider));
+    private readonly Lazy<IHandlebars> handlebarsInstance = new(() => CreateHandlebarsInstance(requestTimeProvider));
 
     public Task<string> RenderAsync(string template, object? model, CultureInfo culture, CancellationToken cancellationToken = default)
     {
@@ -32,7 +32,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
         }
     }
 
-    private static IHandlebars CreateHandlebarsInstance(TimeZoneTimeProvider timeZoneTimeProvider)
+    private static IHandlebars CreateHandlebarsInstance(RequestTimeProvider requestTimeProvider)
     {
         var handlebars = Handlebars.Create();
 
@@ -92,7 +92,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             var format = arguments.ElementAtOrDefault(0)?.ToString() ??
                 $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
 
-            var now = timeZoneTimeProvider.GetLocalNow().DateTime;
+            var now = requestTimeProvider.GetLocalNow().DateTime;
             return now.ToString(format, CultureInfo.CurrentCulture);
         });
 
@@ -101,7 +101,7 @@ public class HandlebarsTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider)
             var format = arguments.ElementAtOrDefault(0)?.ToString() ??
                 $"{CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern} {CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern}";
 
-            var now = timeZoneTimeProvider.GetUtcNow().DateTime;
+            var now = requestTimeProvider.GetUtcNow().DateTime;
             return now.ToString(format, CultureInfo.CurrentCulture);
         });
 
