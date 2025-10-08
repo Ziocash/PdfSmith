@@ -12,7 +12,7 @@
         <PackageReference Include="Microsoft.Playwright" Version="1.55.0" />
         <PackageReference Include="OperationResultTools" Version="1.0.32" />
         <PackageReference Include="RazorLight" Version="2.3.1" />
-        <PackageReference Include="Scriban" Version="6.3.0" />
+        <PackageReference Include="Scriban" Version="6.4.0" />
         <PackageReference Include="SimpleAuthenticationTools.Abstractions" Version="3.0.12" />
         <PackageReference Include="TinyHelpers" Version="3.3.7" />
     </ItemGroup>
