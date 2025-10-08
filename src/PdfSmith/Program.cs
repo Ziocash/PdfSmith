@@ -25,16 +25,25 @@ using PdfSmith.BusinessLayer.Templating.Interfaces;
 using PdfSmith.BusinessLayer.Validations;
 using PdfSmith.DataAccessLayer;
 using PdfSmith.HealthChecks;
+using PdfSmith.Logging;
 using PdfSmith.Shared.Models;
+using Serilog;
+using Serilog.Core;
 using SimpleAuthentication;
 using SimpleAuthentication.ApiKey;
 using TinyHelpers.AspNetCore.Extensions;
 using TinyHelpers.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((hostingContext, services, loggerConfiguration) =>
+{
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
+    loggerConfiguration.ReadFrom.Services(services);
+});
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ILogEventEnricher, HttpContextEnricher>();
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<RequestTimeProvider>();
@@ -167,6 +176,12 @@ app.UseRouting();
 app.UseRequestLocalization();
 
 app.UseAuthentication();
+
+app.UseSerilogRequestLogging(options =>
+{
+    options.IncludeQueryInRequestPath = true;
+});
+
 app.UseAuthorization();
 
 app.UseRateLimiter();
@@ -253,3 +268,4 @@ static Func<HttpContext, HealthReport, Task> HealthChecksResponseWriter()
         context.Response.ContentType = MediaTypeNames.Application.Json;
         await context.Response.WriteAsync(result);
     };
+
