@@ -8,7 +8,7 @@ using Scriban.Runtime;
 
 namespace PdfSmith.BusinessLayer.Templating;
 
-public partial class ScribanTemplateEngine(TimeZoneTimeProvider timeZoneTimeProvider) : ITemplateEngine
+public partial class ScribanTemplateEngine(RequestTimeProvider requestTimeProvider) : ITemplateEngine
 {
     private const string DateTimeZonePlaceholder = "datetime_withzone";
 
@@ -27,7 +27,7 @@ public partial class ScribanTemplateEngine(TimeZoneTimeProvider timeZoneTimeProv
         context.PushCulture(culture);
 
         var dateWithTimeZoneScript = new ScriptObject();
-        dateWithTimeZoneScript.Import(DateTimeZonePlaceholder, new Func<DateTime>(() => timeZoneTimeProvider.GetLocalNow().DateTime));
+        dateWithTimeZoneScript.Import(DateTimeZonePlaceholder, new Func<DateTime>(() => requestTimeProvider.GetLocalNow().DateTime));
         context.PushGlobal(dateWithTimeZoneScript);
 
         var result = await template.RenderAsync(context);
