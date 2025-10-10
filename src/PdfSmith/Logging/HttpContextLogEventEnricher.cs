@@ -14,7 +14,11 @@ public class HttpContextEnricher(IHttpContextAccessor httpContextAccessor) : ILo
             return;
         }
 
-        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("UserName", httpContext.User?.Identity?.Name));
+        var userName = httpContext.User?.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("UserName", userName));
+        }
 
         if (httpContext.Request?.Headers?.TryGetValue("User-Agent", out var userAgent) == true)
         {
