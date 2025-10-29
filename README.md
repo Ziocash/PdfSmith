@@ -2,6 +2,11 @@
 
 A powerful REST API service that generates PDF documents from dynamic HTML templates. PDF Smith supports multiple template engines, offers flexible PDF configuration options, and provides secure API key-based authentication with rate limiting.
 
+[![CodeQL](https://github.com/marcominerva/PdfSmith/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/marcominerva/PdfSmith/actions/workflows/github-code-scanning/codeql)
+[![Lint Code Base](https://github.com/marcominerva/PdfSmith/actions/workflows/linter.yml/badge.svg)](https://github.com/marcominerva/PdfSmith/actions/workflows/linter.yml)
+[![Copilot](https://github.com/marcominerva/PdfSmith/actions/workflows/copilot-swe-agent/copilot/badge.svg)](https://github.com/marcominerva/PdfSmith/actions/workflows/copilot-swe-agent/copilot)
+[![Deploy on Azure](https://github.com/marcominerva/PdfSmith/actions/workflows/deploy.yml/badge.svg)](https://github.com/marcominerva/PdfSmith/actions/workflows/deploy.yml)
+
 ## 🚀 Features
 
 - **Dynamic PDF Generation**: Create PDFs from HTML templates with dynamic data injection
